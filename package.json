@@ -35,8 +35,7 @@
   "files": [
     "es",
     "lib",
-    "src",
-    "saga.js"
+    "src"
   ],
   "jest": {
     "testPathIgnorePatterns": [

@@ -1,5 +1,4 @@
 import { call, cancelled, take, takeEvery, takeLatest } from 'redux-saga/effects'
-import { selectActionsFromLogic } from 'kea'
 
 // this = object with keys { takeEvery, takeLatest, start, stop }
 // object = what is merged into _this after actions are created
@@ -21,7 +20,6 @@ export default function createSaga (_this, object = {}) {
     }
   }
 
-  object.actions = _this.actions ? selectActionsFromLogic(_this.actions(object)) : (object.actions || {})
   Object.assign(_this, object)
 
   // generate the saga

@@ -2,7 +2,7 @@
 
 ![Kea Logo](https://kea.rocks/img/logo.png)
 
-Saga support for Kea
+Saga support for Kea 0.25+
 
 # Usage
 

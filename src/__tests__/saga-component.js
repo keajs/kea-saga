@@ -1,5 +1,6 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache } from 'kea'
+import { kea, resetKeaCache, getStore } from 'kea'
+import '../index' // install the plugin
 
 import './helper/jsdom'
 import React from 'react'
@@ -7,8 +8,6 @@ import PropTypes from 'prop-types'
 import { mount } from 'enzyme'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
-
-import getStore from './helper/get-store'
 
 beforeEach(() => {
   resetKeaCache()
@@ -19,7 +18,7 @@ const SampleComponent2 = () => <div>bla bla bla</div>
 const SampleComponent3 = () => <div>bla bla bla</div>
 
 test('the saga starts and stops with the component', () => {
-  const { store } = getStore()
+  const store = getStore()
 
   let sagaStarted = false
 
@@ -46,7 +45,7 @@ test('the saga starts and stops with the component', () => {
 })
 
 test('the actions get a key', () => {
-  const { store } = getStore()
+  const store = getStore()
 
   let sagaStarted = false
   let sagaStopped = false
@@ -137,7 +136,7 @@ test('the actions get a key', () => {
 })
 
 test('can get() connected values', () => {
-  const { store } = getStore()
+  const store = getStore()
 
   let sagaStarted = false
   let takeEveryRan = false

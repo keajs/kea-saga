@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, keaReducer } from 'kea'
+import { kea, resetKeaCache, keaReducer, getStore } from 'kea'
 import { keaSaga } from '../index'
 
 import { PropTypes } from 'prop-types'
@@ -7,14 +7,12 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
 import createSagaMiddleware from 'redux-saga'
 import { put, take } from 'redux-saga/effects'
 
-import getStore from './helper/get-store'
-
 beforeEach(() => {
   resetKeaCache()
 })
 
 test('can run sagas connected via { sagas: [] }', () => {
-  const { sagaMiddleware } = getStore()
+  const sagaMiddleware = getStore()._sagaMiddleware
 
   let sagaRan = false
   let connectedSagaRan = false
@@ -54,7 +52,7 @@ test('can run sagas connected via { sagas: [] }', () => {
 })
 
 test('connect when passing the entire logic to sagas: []', () => {
-  const { sagaMiddleware } = getStore()
+  const sagaMiddleware = getStore()._sagaMiddleware
 
   let otherConnectedRan = false
   let sagaRan = false
@@ -88,7 +86,7 @@ test('connect when passing the entire logic to sagas: []', () => {
 })
 
 test('connect without specifiying .saga', () => {
-  const { sagaMiddleware } = getStore()
+  const sagaMiddleware = getStore()._sagaMiddleware
 
   let sagaRan = false
   let connectedSagaRan = false

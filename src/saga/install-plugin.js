@@ -1,14 +1,26 @@
 import { select, call } from 'redux-saga/effects'
+import createSagaMiddleware from 'redux-saga'
 
 import createSaga from './create-saga'
 import getConnectedSagas from './get-connected'
 import injectSagasIntoClass from './inject-to-component'
 import createCombinedSaga from './create-combined'
+import { keaSaga } from './saga'
 
 import { activatePlugin } from 'kea'
 
 activatePlugin({
   name: 'saga',
+
+  beforeReduxStore: (options) => {
+    options._sagaMiddleware = createSagaMiddleware()
+    options.middleware.push(options._sagaMiddleware)
+  },
+
+  afterReduxStore: (options, store) => {
+    options._sagaMiddleware.run(keaSaga)
+    store._sagaMiddleware = options._sagaMiddleware
+  },
 
   isActive: (input) => {
     return !!(input.sagas || input.start || input.stop || input.takeEvery || input.takeLatest || (input.connect && input.connect.sagas))

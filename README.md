@@ -19,6 +19,9 @@ Import `kea-saga` in your app's entrypoint, before any `kea({})` calls take plac
 import 'kea-saga'
 ```
 
+Then your kea logic stores will get access to the keys: `start`, `stop`, `takeEvery`, `takeLatest`, `workers`, `sagas`.
+Read the [sliders guide](https://kea.js.org/guide/sliders) for details.
+
 ```js
 import { kea } from 'kea'
 

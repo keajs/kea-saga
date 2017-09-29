@@ -5,6 +5,6 @@ As we're at the 0.x phase, deprecations and breaking changes will still happen. 
 
 Once we react 1.0 all deprecations will be removed and the project will switch to SemVer.
 
-## 0.25.0 - 2017-09-28
+## 0.1.0 - 2017-09-29
 ### Changed
 - First version

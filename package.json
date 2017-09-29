@@ -10,12 +10,12 @@
   "esnext": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/keajs/kea.git"
+    "url": "git+https://github.com/keajs/kea-saga.git"
   },
   "bugs": {
-    "url": "https://github.com/keajs/kea/issues"
+    "url": "https://github.com/keajs/kea-saga/issues"
   },
-  "homepage": "https://github.com/keajs/kea#readme",
+  "homepage": "https://github.com/keajs/kea-saga#readme",
   "size-limit": [
     {
       "path": "lib/index.js",

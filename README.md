@@ -1,8 +1,8 @@
 ![NPM Version](https://img.shields.io/npm/v/kea-saga.svg)
 
-![Kea Logo](https://kea.rocks/img/logo.png)
+Redux-Saga side effects for Kea 0.25+.
 
-Redux-Saga side effects for Kea 0.25+
+[Read the documentation for Kea](https://kea.js.org/)
 
 # Usage
 

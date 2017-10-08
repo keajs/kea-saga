@@ -27,7 +27,7 @@ export default function injectSagasIntoClass (Klass, input, output) {
     this._keaSagaBase = {}
     this._keaRunningSaga = null
 
-    const key = input.key ? input.key(this.props) : 'index'
+    const key = input.key ? input.key(this.props) : null
     const path = input.path(key)
 
     let sagas = (input.sagas || []).map(saga => {
@@ -61,13 +61,17 @@ export default function injectSagasIntoClass (Klass, input, output) {
 
       let sagaActions = Object.assign({}, connectedActions)
 
-      // inject key to the payload of inline actions
+      // inject key to the payload of created actions
       Object.keys(output.actions || {}).forEach(actionKey => {
-        sagaActions[actionKey] = (...args) => {
-          const createdAction = output.actions[actionKey](...args)
-          return Object.assign({}, createdAction, { payload: Object.assign({ key: key }, createdAction.payload) })
+        if (key) {
+          sagaActions[actionKey] = (...args) => {
+            const createdAction = output.actions[actionKey](...args)
+            return Object.assign({}, createdAction, { payload: Object.assign({ key: key }, createdAction.payload) })
+          }
+          sagaActions[actionKey].toString = output.actions[actionKey].toString
+        } else {
+          sagaActions[actionKey] = output.actions[actionKey]
         }
-        sagaActions[actionKey].toString = output.actions[actionKey].toString
       })
 
       const saga = createSaga(this._keaSagaBase, { actions: sagaActions })

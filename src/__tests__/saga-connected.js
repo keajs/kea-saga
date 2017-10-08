@@ -39,7 +39,7 @@ test('can run sagas connected via { sagas: [] }', () => {
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
   expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
+  expect(sagaLogic._hasKeaLogic).toBe(false)
   expect(sagaLogic._keaPlugins.saga).toBe(true)
 
   expect(sagaLogic.saga).toBeDefined()

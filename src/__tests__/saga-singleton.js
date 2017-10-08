@@ -59,6 +59,9 @@ test('can access defined actions', () => {
     actions: () => ({
       doSomething: (input) => ({ input })
     }),
+    reducers: ({ actions }) => ({
+      something: [false, PropTypes.bool, {}]
+    }),
     start: function * () {
       expect(this.path).toBeDefined()
       expect(this.actions).toBeDefined()
@@ -106,6 +109,9 @@ test('takeEvery and takeLatest work with workers', () => {
     actions: () => ({
       doEvery: (input) => ({ input }),
       doLatest: (input) => ({ input })
+    }),
+    reducers: ({ actions }) => ({
+      something: [false, PropTypes.bool, {}]
     }),
     start: function * () {
       expect(this.get).toBeDefined()
@@ -171,6 +177,9 @@ test('takeEvery and takeLatest work with inline functions', () => {
     actions: () => ({
       doEvery: (input) => ({ input }),
       doLatest: (input) => ({ input })
+    }),
+    reducers: ({ actions }) => ({
+      something: [false, PropTypes.bool, {}]
     }),
     start: function * () {
       expect(this.get).toBeDefined()

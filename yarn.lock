@@ -3437,9 +3437,9 @@ jsx-ast-utils@^2.0.0:
   dependencies:
     array-includes "^3.0.3"
 
-kea@^0.24.2:
-  version "0.24.2"
-  resolved "https://registry.yarnpkg.com/kea/-/kea-0.24.2.tgz#7d3789141678bbe74d3ca64ce414ec49184d3932"
+kea@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/kea/-/kea-0.26.0.tgz#6f32a3259a926325bc148f3162cc5f4fe46a4b21"
   dependencies:
     babel-runtime "^6.26.0"
 

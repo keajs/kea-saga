@@ -42,28 +42,29 @@ activatePlugin({
     }
   },
 
-  afterAddSingletonLogic: (active, input, output) => {
-    output.get = function * (key) {
-      return yield select(key ? output.selectors[key] : output.selector)
-    }
-
-    output.fetch = function * () {
-      let results = {}
-
-      const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
-
-      for (let i = 0; i < keys.length; i++) {
-        results[keys[i]] = yield output.get(keys[i])
+  afterCreateSingleton: (active, input, output) => {
+    if (output.selectors) {
+      output.get = function * (key) {
+        return yield select(key ? output.selectors[key] : output.selector)
       }
 
-      return results
-    }
-  },
+      output.fetch = function * () {
+        let results = {}
 
-  afterCreateSingleton: (active, input, output) => {
+        const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
+
+        for (let i = 0; i < keys.length; i++) {
+          results[keys[i]] = yield output.get(keys[i])
+        }
+
+        return results
+      }
+    }
+
     if (active) {
       output.saga = function * () {
         let sagas = (input.sagas || []).map(saga => {
+          // if saga is a logic store, take it's ".saga", otherwise assume it's a generator function
           return saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga ? saga.saga : saga
         })
 

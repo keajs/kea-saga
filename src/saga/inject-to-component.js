@@ -12,10 +12,10 @@ const DEBUG = false
 export default function injectSagasIntoClass (Klass, input, output) {
   const connectedActions = output.connected ? output.connected.actions : {}
 
-  if (Klass._injectedKeaSaga) {
+  if (Klass.prototype._injectedKeaSaga) {
     console.error(`[KEA] Error! Already injected kea saga into component "${(Klass && Klass.name) || Klass}"`)
   }
-  Klass._injectedKeaSaga = true
+  Klass.prototype._injectedKeaSaga = true
 
   const originalComponentDidMount = Klass.prototype.componentDidMount
   Klass.prototype.componentDidMount = function () {

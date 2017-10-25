@@ -34,7 +34,7 @@ import { activatePlugin } from 'kea'
 
 activatePlugin(sagaPlugin)
 
-// third way
+// the shortest way
 import 'kea-saga/install'
 ```
 

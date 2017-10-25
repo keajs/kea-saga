@@ -7,9 +7,7 @@ import injectSagasIntoClass from './inject-to-component'
 import createCombinedSaga from './create-combined'
 import { keaSaga } from './saga'
 
-import { activatePlugin } from 'kea'
-
-activatePlugin({
+export default {
   name: 'saga',
 
   beforeReduxStore: (options) => {
@@ -114,4 +112,4 @@ activatePlugin({
     response.get = output.get
     response.fetch = output.fetch
   }
-})
+}

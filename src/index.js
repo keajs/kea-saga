@@ -1,3 +1,5 @@
-import './saga/install-plugin'
+import sagaPlugin from './saga'
+
+export default sagaPlugin
 
 export { keaSaga } from './saga/saga'

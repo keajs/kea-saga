@@ -8,6 +8,7 @@ Once we react 1.0 all deprecations will be removed and the project will switch t
 ## 0.3.0 - 2017-10-25
 ### Changed
 - Updated to the plugin system of kea 0.27
+- You must now install the plugin manually or import from `kea-saga/install`. See the README for details.
 - Export `workers` in the logic store
 
 ## 0.2.0 - 2017-10-08

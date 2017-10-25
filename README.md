@@ -17,10 +17,25 @@ yarn add kea-saga redux-saga
 npm install --save kea-saga redux-saga
 ```
 
-Import `kea-saga` in your app's entrypoint, before any `kea({})` calls take place:
+Then install in one of the following ways. Make sure to run this before any call to `kea({})` takes place.
 
 ```js
-import 'kea-saga'
+// the cleanest way
+import sagaPlugin from 'kea-saga'
+import { getStore } from 'kea'
+
+const store = getStore({
+  plugins: [ sagaPlugin ]
+})
+
+// another way
+import sagaPlugin from 'kea-saga'
+import { activatePlugin } from 'kea'
+
+activatePlugin(sagaPlugin)
+
+// third way
+import 'kea-saga/install'
 ```
 
 Then your kea logic stores will get access to the keys: `start`, `stop`, `takeEvery`, `takeLatest`, `workers`, `sagas`.
@@ -115,15 +130,17 @@ export default class Slider extends Component {
 
 # Store setup
 
-If you're using the `getStore()` helper from Kea, saga functionality is automatically added to the store.
+If you're using the `getStore()` helper from Kea, saga functionality is automatically added to the store, provided you give it the plugin.
 
 However if you wish to manually set up your store, here are the steps:
 
 ```js
-import { keaReducer } from 'kea'
-import { keaSaga } from 'kea-saga'
+import { keaReducer, activatePlugin } from 'kea'
+import sagaPlugin, { keaSaga } from 'kea-saga'
 
 export default function getStore () {
+  activatePlugin(sagaPlugin)
+
   const reducers = combineReducers({
     kea: keaReducer('kea'),
     scenes: keaReducer('scenes')

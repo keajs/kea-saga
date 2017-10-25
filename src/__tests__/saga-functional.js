@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetKeaCache, getStore } from 'kea'
-import '../index' // install the plugin
+import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
 import React from 'react'
@@ -11,6 +11,7 @@ import { put } from 'redux-saga/effects'
 
 beforeEach(() => {
   resetKeaCache()
+  // activatePlugin(sagaPlugin)
 })
 
 function SampleComponent () {
@@ -22,7 +23,7 @@ function SampleComponent () {
 }
 
 test('the saga starts and stops with the component', () => {
-  const store = getStore()
+  const store = getStore({ plugins: [ sagaPlugin ] })
 
   let sagaStarted = false
 
@@ -48,7 +49,7 @@ test('the saga starts and stops with the component', () => {
 })
 
 test('the actions get a key', () => {
-  const store = getStore()
+  const store = getStore({ plugins: [ sagaPlugin ] })
 
   let sagaStarted = false
   let takeEveryRan = false

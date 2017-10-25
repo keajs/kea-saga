@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, getStore } from 'kea'
-import '../index' // install the plugin
+import { kea, resetKeaCache, getStore, activatePlugin } from 'kea'
+import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
 import React from 'react'
@@ -11,6 +11,7 @@ import { put } from 'redux-saga/effects'
 
 beforeEach(() => {
   resetKeaCache()
+  activatePlugin(sagaPlugin)
 })
 
 const SampleComponent1 = () => <div>bla bla bla</div>

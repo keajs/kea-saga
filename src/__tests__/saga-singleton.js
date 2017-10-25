@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, keaReducer } from 'kea'
-import { keaSaga } from '../index'
+import { kea, resetKeaCache, keaReducer, activatePlugin } from 'kea'
+import sagaPlugin, { keaSaga } from '../index'
 
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
 import createSagaMiddleware from 'redux-saga'
@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 
 beforeEach(() => {
   resetKeaCache()
+  activatePlugin(sagaPlugin)
 })
 
 test('can have a kea with only a saga', () => {

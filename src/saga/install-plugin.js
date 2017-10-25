@@ -120,6 +120,7 @@ activatePlugin({
 
   addToResponse: (active, input, output, response) => {
     response.saga = output.saga
+    response.workers = input.workers
     response.get = output.get
     response.fetch = output.fetch
   }

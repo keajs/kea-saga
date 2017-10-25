@@ -26,7 +26,7 @@ activatePlugin({
     return !!(input.sagas || input.start || input.stop || input.takeEvery || input.takeLatest || (input.connect && input.connect.sagas))
   },
 
-  afterConnect: (active, input, output) => {
+  afterConnect: (input, output) => {
     const connect = input.connect || {}
     const connectedSagas = getConnectedSagas(connect)
 
@@ -42,7 +42,8 @@ activatePlugin({
     }
   },
 
-  afterCreateSingleton: (active, input, output) => {
+  afterCreateSingleton: (input, output) => {
+    const isActive = output.activePlugins.saga
     const hasSelectors = !!(output.selectors && Object.keys(output.selectors).length > 0)
 
     if (hasSelectors) {
@@ -63,7 +64,7 @@ activatePlugin({
       }
     }
 
-    if (active) {
+    if (isActive) {
       const singletonSagaBase = {
         actions: Object.assign({}, output.actions),
         start: input.start,
@@ -93,20 +94,20 @@ activatePlugin({
     }
   },
 
-  injectToClass: (active, input, output, Klass) => {
-    if (active) {
+  injectToClass: (input, output, Klass) => {
+    if (output.activePlugins.saga) {
       injectSagasIntoClass(Klass, input, output)
     }
   },
 
-  injectToConnectedClass: (active, input, output, KonnektedKlass) => {
-    if (active) {
+  injectToConnectedClass: (input, output, KonnektedKlass) => {
+    if (output.activePlugins.saga) {
       injectSagasIntoClass(KonnektedKlass, input, output)
     }
   },
 
-  addToResponse: (active, input, output, response) => {
-    if (active) {
+  addToResponse: (input, output, response) => {
+    if (output.activePlugins.saga) {
       response.saga = output.saga
       response.workers = output.workers
     }

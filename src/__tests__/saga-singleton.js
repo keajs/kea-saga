@@ -144,6 +144,7 @@ test('takeEvery and takeLatest work with workers', () => {
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).toBeDefined()
+  expect(Object.keys(sagaLogic.workers)).toEqual(['doEvery', 'doLatest'])
 
   expect(sagaRan).toBe(false)
 
@@ -208,7 +209,7 @@ test('takeEvery and takeLatest work with inline functions', () => {
   expect(sagaLogic._keaPlugins.saga).toBe(true)
 
   expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
+  expect(sagaLogic.workers).toEqual({})
 
   expect(sagaRan).toBe(false)
 
@@ -269,7 +270,7 @@ test('can access values on reducer', () => {
   expect(sagaLogic._keaPlugins.saga).toBe(true)
 
   expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
+  expect(sagaLogic.workers).toEqual({})
 
   expect(sagaRan).toBe(false)
 

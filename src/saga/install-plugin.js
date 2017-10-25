@@ -43,7 +43,9 @@ activatePlugin({
   },
 
   afterCreateSingleton: (active, input, output) => {
-    if (output.selectors) {
+    const hasSelectors = !!(output.selectors && Object.keys(output.selectors).length > 0)
+
+    if (hasSelectors) {
       output.get = function * (key) {
         return yield select(key ? output.selectors[key] : output.selector)
       }
@@ -62,44 +64,29 @@ activatePlugin({
     }
 
     if (active) {
+      const singletonSagaBase = {
+        actions: Object.assign({}, output.actions),
+        start: input.start,
+        stop: input.stop,
+        takeEvery: input.takeEvery,
+        takeLatest: input.takeLatest,
+        workers: input.workers ? Object.assign({}, input.workers) : {},
+        key: output.key,
+        path: output.path,
+        get: output.get,
+        fetch: output.fetch
+      }
+
+      // if saga is a logic store, take it's ".saga", otherwise assume it's a generator function
+      let sagas = (input.sagas || []).map(saga => (saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga) || saga)
+
+      if (input.start || input.stop || input.takeEvery || input.takeLatest) {
+        output._createdSaga = createSaga(singletonSagaBase)
+        output.workers = singletonSagaBase.workers
+        sagas.push(output._createdSaga)
+      }
+
       output.saga = function * () {
-        let sagas = (input.sagas || []).map(saga => {
-          // if saga is a logic store, take it's ".saga", otherwise assume it's a generator function
-          return saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga ? saga.saga : saga
-        })
-
-        if (input.start || input.stop || input.takeEvery || input.takeLatest) {
-          if (!output._createdSaga) {
-            const hasSelectors = !!(output.selectors && Object.keys(output.selectors).length > 0)
-            const _singletonSagaBase = {
-              start: input.start,
-              stop: input.stop,
-              takeEvery: input.takeEvery,
-              takeLatest: input.takeLatest,
-              workers: input.workers ? Object.assign({}, input.workers) : {},
-              key: output.key,
-              path: output.path,
-              get: hasSelectors ? function * (key) {
-                return yield select(key ? output.selectors[key] : output.selector)
-              } : undefined,
-              fetch: hasSelectors ? function * () {
-                let results = {}
-                const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
-                for (let i = 0; i < keys.length; i++) {
-                  results[keys[i]] = yield this.get(keys[i])
-                }
-                return results
-              } : undefined
-            }
-
-            let sagaActions = Object.assign({}, output.actions)
-
-            output._createdSaga = createSaga(_singletonSagaBase, { actions: sagaActions })
-          }
-
-          sagas.push(output._createdSaga)
-        }
-
         const sagaPath = output.path ? output.path.join('.') : input.path('').filter(p => p).join('.')
         yield call(createCombinedSaga(sagas, sagaPath))
       }
@@ -119,8 +106,10 @@ activatePlugin({
   },
 
   addToResponse: (active, input, output, response) => {
-    response.saga = output.saga
-    response.workers = input.workers
+    if (active) {
+      response.saga = output.saga
+      response.workers = output.workers
+    }
     response.get = output.get
     response.fetch = output.fetch
   }

@@ -10,6 +10,10 @@ import { keaSaga } from './saga'
 export default {
   name: 'saga',
 
+  // must be used globally
+  global: true,
+  local: false,
+
   beforeReduxStore: (options) => {
     options._sagaMiddleware = createSagaMiddleware()
     options.middleware.push(options._sagaMiddleware)

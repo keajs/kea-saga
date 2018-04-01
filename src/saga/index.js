@@ -14,7 +14,7 @@ export default {
   global: true,
   local: false,
 
-  beforeReduxStore: (options) => {
+  beforeReduxStore: options => {
     options._sagaMiddleware = createSagaMiddleware()
     options.middleware.push(options._sagaMiddleware)
   },
@@ -24,8 +24,15 @@ export default {
     store._sagaMiddleware = options._sagaMiddleware
   },
 
-  isActive: (input) => {
-    return !!(input.sagas || input.start || input.stop || input.takeEvery || input.takeLatest || (input.connect && input.connect.sagas))
+  isActive: input => {
+    return !!(
+      input.sagas ||
+      input.start ||
+      input.stop ||
+      input.takeEvery ||
+      input.takeLatest ||
+      (input.connect && input.connect.sagas)
+    )
   },
 
   afterConnect: (input, output) => {
@@ -81,7 +88,9 @@ export default {
       }
 
       // if saga is a logic store, take it's ".saga", otherwise assume it's a generator function
-      let sagas = (input.sagas || []).map(saga => (saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga) || saga)
+      let sagas = (input.sagas || []).map(
+        saga => (saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga) || saga
+      )
 
       if (input.start || input.stop || input.takeEvery || input.takeLatest) {
         output._createdSaga = createSaga(singletonSagaBase)
@@ -90,7 +99,12 @@ export default {
       }
 
       output.saga = function * () {
-        const sagaPath = output.path ? output.path.join('.') : input.path('').filter(p => p).join('.')
+        const sagaPath = output.path
+          ? output.path.join('.')
+          : input
+            .path('')
+            .filter(p => p)
+            .join('.')
         yield call(createCombinedSaga(sagas, sagaPath))
       }
     }

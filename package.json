@@ -48,6 +48,11 @@
       "<rootDir>/src/__tests__/helper/"
     ]
   },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
+  },
   "dependencies": {
     "babel-runtime": "^6.26.0"
   },

@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, connect, resetKeaCache, getStore, activatePlugin } from 'kea'
+import { kea,   resetKeaCache, getStore, activatePlugin } from 'kea'
 import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
@@ -89,9 +89,13 @@ test('the saga is cancelled only when all connected components are unmounted', (
       disable: true
     }),
     reducers: ({ actions }) => ({
-      disabled: [false, PropTypes.bool, {
-        [actions.disable]: () => true
-      }]
+      disabled: [
+        false,
+        PropTypes.bool,
+        {
+          [actions.disable]: () => true
+        }
+      ]
     })
   })
 

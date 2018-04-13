@@ -1,6 +1,6 @@
 {
   "name": "kea-saga",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Saga support for kea",
   "author": "Marius Andra",
   "license": "MIT",
@@ -47,6 +47,11 @@
       "<rootDir>/node_modules/",
       "<rootDir>/src/__tests__/helper/"
     ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
   },
   "dependencies": {
     "babel-runtime": "^6.26.0"

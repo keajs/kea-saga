@@ -47,7 +47,7 @@ export default function injectSagasIntoClass (Klass, input, output) {
         props: this.props,
         get: function * (key) {
           const { selectors, selector } = getCache(path)
-          return yield select(key ? selectors[key] : selector)
+          return yield select(key ? selectors[key] : selector, this.props)
         },
         fetch: function * () {
           let results = {}
@@ -66,7 +66,9 @@ export default function injectSagasIntoClass (Klass, input, output) {
         if (key) {
           sagaActions[actionKey] = (...args) => {
             const createdAction = output.actions[actionKey](...args)
-            return Object.assign({}, createdAction, { payload: Object.assign({ key: key }, createdAction.payload) })
+            return Object.assign({}, createdAction, {
+              payload: Object.assign({ key: key }, createdAction.payload)
+            })
           }
           sagaActions[actionKey].toString = output.actions[actionKey].toString
         } else {

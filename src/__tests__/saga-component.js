@@ -17,6 +17,7 @@ beforeEach(() => {
 const SampleComponent1 = () => <div>bla bla bla</div>
 const SampleComponent2 = () => <div>bla bla bla</div>
 const SampleComponent3 = () => <div>bla bla bla</div>
+const SampleComponent4 = () => <div>bla bla bla</div>
 
 test('the saga starts and stops with the component', () => {
   const store = getStore()
@@ -60,25 +61,25 @@ test('the actions get a key', () => {
 
   const logicWithSaga = kea({
     connect: {
-      actions: [
-        getActionsFromHere, [
-          'something'
-        ]
-      ]
+      actions: [getActionsFromHere, ['something']]
     },
 
-    key: (props) => props.id,
+    key: props => props.id,
 
-    path: (key) => ['scenes', 'sagaProps', key],
+    path: key => ['scenes', 'sagaProps', key],
 
     actions: () => ({
-      myAction: (value) => ({ value })
+      myAction: value => ({ value })
     }),
 
     reducers: ({ actions }) => ({
-      someData: ['nothing', PropTypes.string, {
-        [actions.myAction]: (state, payload) => payload.value
-      }]
+      someData: [
+        'nothing',
+        PropTypes.string,
+        {
+          [actions.myAction]: (state, payload) => payload.value
+        }
+      ]
     }),
 
     * start () {
@@ -147,27 +148,23 @@ test('can get() connected values', () => {
       myAction: true
     }),
     reducers: ({ actions }) => ({
-      connectedValue: [12, PropTypes.number, {
-        [actions.myAction]: () => 42
-      }]
+      connectedValue: [
+        12,
+        PropTypes.number,
+        {
+          [actions.myAction]: () => 42
+        }
+      ]
     })
   })
 
   const otherLogicWithSaga = kea({
     connect: {
-      actions: [
-        firstLogic, [
-          'myAction'
-        ]
-      ],
-      props: [
-        firstLogic, [
-          'connectedValue'
-        ]
-      ]
+      actions: [firstLogic, ['myAction']],
+      props: [firstLogic, ['connectedValue']]
     },
 
-    path: (key) => ['scenes', 'sagaProps2'],
+    path: key => ['scenes', 'sagaProps2'],
 
     * start () {
       expect(this.path).toEqual(['scenes', 'sagaProps2'])
@@ -208,6 +205,44 @@ test('can get() connected values', () => {
 
   expect(sagaStarted).toBe(true)
   expect(takeEveryRan).toBe(true)
+
+  wrapper.unmount()
+})
+
+test('select gets props', () => {
+  const store = getStore()
+
+  let sagaStarted = false
+
+  const logicWithSaga = kea({
+    path: key => ['scenes', 'sagaProps2'],
+
+    reducers: ({ actions }) => ({
+      ten: [10, PropTypes.number, {}]
+    }),
+
+    selectors: ({ selectors }) => ({
+      idPlusTen: [() => [selectors.ten, (_, props) => props.id], (ten, id) => ten + id, PropTypes.number]
+    }),
+
+    * start () {
+      expect(yield this.get('ten')).toBe(10)
+      expect(yield this.get('idPlusTen')).toBe(22)
+      sagaStarted = true
+    }
+  })
+
+  expect(sagaStarted).toBe(false)
+
+  const ConnectedComponent = logicWithSaga(SampleComponent4)
+
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent id={12} />
+    </Provider>
+  )
+
+  expect(sagaStarted).toBe(true)
 
   wrapper.unmount()
 })

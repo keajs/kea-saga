@@ -1,6 +1,6 @@
 {
   "name": "kea-saga",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Saga support for kea",
   "author": "Marius Andra",
   "license": "MIT",

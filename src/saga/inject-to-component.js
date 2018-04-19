@@ -44,6 +44,7 @@ export default function injectSagasIntoClass (Klass, input, output) {
         workers: input.workers ? Object.assign({}, input.workers) : {},
         key: key,
         path: path,
+        constants: output.constants,
         props: this.props,
         get: function * (key) {
           const { selectors, selector } = getCache(path)

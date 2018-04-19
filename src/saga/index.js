@@ -75,6 +75,7 @@ export default {
 
     if (isActive) {
       const singletonSagaBase = {
+        constants: Object.assign({}, output.constants),
         actions: Object.assign({}, output.actions),
         start: input.start,
         stop: input.stop,

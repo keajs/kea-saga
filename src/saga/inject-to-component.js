@@ -9,6 +9,8 @@ import { getCache } from 'kea'
 
 const DEBUG = false
 
+const setKeyAction = '@@kea/set key'
+
 export default function injectSagasIntoClass (Klass, input, output) {
   const connectedActions = output.connected ? output.connected.actions : {}
 
@@ -68,6 +70,7 @@ export default function injectSagasIntoClass (Klass, input, output) {
           sagaActions[actionKey] = (...args) => {
             const createdAction = output.actions[actionKey](...args)
             return Object.assign({}, createdAction, {
+              type: createdAction.type || setKeyAction,
               payload: Object.assign({ key: key }, createdAction.payload)
             })
           }

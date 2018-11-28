@@ -82,7 +82,7 @@ export default function injectSagasIntoClass (Klass, input, output) {
     }
 
     if (sagas.length > 0) {
-      this._keaRunningSaga = startSaga(createCombinedSaga(sagas, path.join('.')))
+      this._keaRunningSaga = startSaga(path.join('.'), createCombinedSaga(sagas, path.join('.')))
     }
 
     originalComponentDidMount && originalComponentDidMount.bind(this)()
@@ -100,8 +100,12 @@ export default function injectSagasIntoClass (Klass, input, output) {
     if (DEBUG) {
       console.log('component will unmount')
     }
+
     if (this._keaRunningSaga) {
-      cancelSaga(this._keaRunningSaga)
+      const key = input.key ? input.key(this.props) : null
+      const path = input.path(key)
+
+      cancelSaga(path.join('.'))
     }
 
     originalComponentWillUnmount && originalComponentWillUnmount.bind(this)()

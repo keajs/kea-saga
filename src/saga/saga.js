@@ -1,9 +1,9 @@
 import { call, take, cancel, fork } from 'redux-saga/effects'
 import { eventChannel } from 'redux-saga'
+import { getCache, setCache } from 'kea'
 
 let emitter
-let cancelCounter = 1
-let toCancel = {}
+let forkedSagas = {}
 
 function createComponentChannel (socket) {
   return eventChannel(emit => {
@@ -16,28 +16,55 @@ export function * keaSaga () {
   const channel = yield call(createComponentChannel)
 
   while (true) {
-    const { startSaga, cancelSaga, saga, counter } = yield take(channel)
+    const { startSaga, cancelSaga, saga, path } = yield take(channel)
+
     if (startSaga) {
-      toCancel[counter] = yield fork(saga)
+      forkedSagas[path] = yield fork(saga)
     }
+
     if (cancelSaga) {
-      yield cancel(toCancel[counter])
+      yield cancel(forkedSagas[path])
     }
   }
 }
 
-export function startSaga (saga) {
-  if (emitter) {
-    cancelCounter += 1
-    emitter({ startSaga: true, saga, counter: cancelCounter })
-    return cancelCounter
+export function startSaga (path, saga) {
+  if (!emitter) {
+    return false
   }
 
-  return null
+  const count = getCount(path)
+
+  if (count === 0) {
+    emitter({ startSaga: true, saga, path })
+  }
+
+  setCount(path, count + 1)
+
+  return true
 }
 
-export function cancelSaga (counter) {
-  if (emitter) {
-    emitter({ cancelSaga: true, counter })
+export function cancelSaga (path) {
+  if (!emitter) {
+    return false
   }
+
+  const count = getCount(path)
+  setCount(path, count - 1)
+
+  if (count <= 1) {
+    emitter({ cancelSaga: true, path })
+  }
+
+  return true
+}
+
+function getCount (path) {
+  const sagaCounter = getCache('sagaCounter') || {}
+  return sagaCounter[path] || 0
+}
+
+function setCount (path, count) {
+  const sagaCounter = getCache('sagaCounter') || {}
+  setCache('sagaCounter', Object.assign({}, sagaCounter, { [path]: count }))
 }

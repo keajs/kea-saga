@@ -4,12 +4,13 @@ import { getCache, setCache } from 'kea'
 
 const DEBUG = false
 
-export default function createCombinedSaga (sagas, sagaPath = undefined) {
+export default function createCombinedSaga (sagas, sagaPath) {
   return function * () {
     if (DEBUG) {
       console.log(`Starting ${sagaPath}`)
     }
-    if (sagaPath && getCache(sagaPath, 'sagaRunning')) {
+
+    if (getCache(sagaPath, 'sagaRunning')) {
       if (DEBUG) {
         console.log(`Already running ${sagaPath}`)
       }

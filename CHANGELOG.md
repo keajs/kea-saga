@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 As we're at the 0.x phase, deprecations and breaking changes will still happen. They will be documented here.
 
 Once we react 1.0 all deprecations will be removed and the project will switch to SemVer.
+
+## 0.3.5 - 2018-11-28
+### Fixed
+- Keep better track of started and stopped sagas so that we don't unmount before all are disconnected
+
 ## 0.3.3 - 2018-04-01
 ### Fixed
 - Selectors accessed via `yield this.get('something')` now have access to the wrapped Component's props

@@ -1,63 +1,49 @@
-import { select, call } from 'redux-saga/effects'
 import createSagaMiddleware from 'redux-saga'
 
-import createSaga from './create-saga'
-import getConnectedSagas from './get-connected'
-import injectSagasIntoClass from './inject-to-component'
-import createCombinedSaga from './create-combined'
-import { keaSaga } from './saga'
+import { keaSaga, startSaga, cancelSaga } from './saga'
+import { createSaga } from './create-saga'
+import { select } from 'redux-saga/effects'
 
 export default {
   name: 'saga',
 
-  // must be used globally
-  global: true,
-  local: false,
-
-  beforeReduxStore: options => {
+  beforeReduxStore (options) {
     options._sagaMiddleware = createSagaMiddleware()
     options.middleware.push(options._sagaMiddleware)
   },
 
-  afterReduxStore: (options, store) => {
+  afterReduxStore (options, store) {
     options._sagaMiddleware.run(keaSaga)
     store._sagaMiddleware = options._sagaMiddleware
   },
 
-  isActive: input => {
-    return !!(
-      input.sagas ||
-      input.start ||
-      input.stop ||
-      input.takeEvery ||
-      input.takeLatest ||
-      (input.connect && input.connect.sagas)
-    )
-  },
+  // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
+  // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
+  afterCreateConnect (input, output, addConncetion) {
+    let connectedSagas = []
 
-  afterConnect: (input, output) => {
-    const connect = input.connect || {}
-    const connectedSagas = getConnectedSagas(connect)
+    if (input.sagas || (input.connect && input.connect.sagas)) {
+      const sagas = [...(input.sagas || []), ...((input.connect && input.connect.sagas) || [])]
 
-    // sagas we automatically connect from actions && props
+      for (let saga of sagas) {
+        if (saga._isKeaFunction) {
+          addConncetion(output, saga)
+        } else {
+          connectedSagas.push(saga)
+        }
+      }
+    }
+
     if (connectedSagas.length > 0) {
-      output.activePlugins.saga = true
-      input.sagas = input.sagas ? input.sagas.concat(connectedSagas) : connectedSagas
-    }
-
-    // we have input: { connect: { sagas: [] } }, add to input: { sagas: [] }
-    if (connect.sagas) {
-      input.sagas = input.sagas ? input.sagas.concat(connect.sagas) : connect.sagas
+      output.connectedSagas = connectedSagas
     }
   },
 
-  afterCreateSingleton: (input, output) => {
-    const isActive = output.activePlugins.saga
-    const hasSelectors = !!(output.selectors && Object.keys(output.selectors).length > 0)
-
-    if (hasSelectors) {
+  afterCreate (input, output) {
+    // add .fetch() & .get() to all logic stores if there are any selectors
+    if (output.selectors && Object.keys(output.selectors).length > 0) {
       output.get = function * (key) {
-        return yield select(key ? output.selectors[key] : output.selector)
+        return yield select(key ? output.selectors[key] : output.selector, output.props)
       }
 
       output.fetch = function * () {
@@ -73,62 +59,27 @@ export default {
       }
     }
 
-    if (isActive) {
-      const singletonSagaBase = {
-        constants: Object.assign({}, output.constants),
-        actions: Object.assign({}, output.actions),
-        start: input.start,
-        stop: input.stop,
-        takeEvery: input.takeEvery,
-        takeLatest: input.takeLatest,
-        workers: input.workers ? Object.assign({}, input.workers) : {},
-        key: output.key,
-        path: output.path,
-        get: output.get,
-        fetch: output.fetch
-      }
-
-      // if saga is a logic store, take it's ".saga", otherwise assume it's a generator function
-      let sagas = (input.sagas || []).map(
-        saga => (saga && saga._keaPlugins && saga._keaPlugins.saga && saga.saga) || saga
-      )
-
-      if (input.start || input.stop || input.takeEvery || input.takeLatest) {
-        output._createdSaga = createSaga(singletonSagaBase)
-        output.workers = singletonSagaBase.workers
-        sagas.push(output._createdSaga)
-      }
-
-      output.saga = function * () {
-        const sagaPath = output.path
-          ? output.path.join('.')
-          : input
-            .path('')
-            .filter(p => p)
-            .join('.')
-        yield call(createCombinedSaga(sagas, sagaPath))
-      }
+    // add .saga and .workers (if needed)
+    if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || output.connectedSagas) {
+      createSaga(input, output)
     }
   },
 
-  injectToClass: (input, output, Klass) => {
-    if (output.activePlugins.saga) {
-      injectSagasIntoClass(Klass, input, output)
+  beforeMount (logic, props) {
+    if (logic.saga) {
+      logic.props = props
     }
   },
 
-  injectToConnectedClass: (input, output, KonnektedKlass) => {
-    if (output.activePlugins.saga) {
-      injectSagasIntoClass(KonnektedKlass, input, output)
+  mountedPath (pathString, logic) {
+    if (logic.saga) {
+      startSaga(pathString, logic.saga)
     }
   },
 
-  addToResponse: (input, output, response) => {
-    if (output.activePlugins.saga) {
-      response.saga = output.saga
-      response.workers = output.workers
+  unmountedPath (pathString, logic) {
+    if (logic.saga) {
+      cancelSaga(pathString)
     }
-    response.get = output.get
-    response.fetch = output.fetch
   }
 }

@@ -5,8 +5,11 @@ import sagaPlugin from '../index' // install the plugin
 import './helper/jsdom'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { mount } from 'enzyme'
+import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
+import Adapter from 'enzyme-adapter-react-16'
+
+configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetKeaCache()
@@ -124,7 +127,7 @@ test('the saga is cancelled only when all connected components are unmounted', (
   expect(componentUnmounted).toBe(false)
 
   // run the disabler, removing component #3
-  const mountedDisabler = wrapper.find('ComponentToDisable').node
+  const mountedDisabler = wrapper.find('ComponentToDisable').instance()
   expect(Object.keys(mountedDisabler.actions)).toEqual(['disable'])
   mountedDisabler.actions.disable()
 

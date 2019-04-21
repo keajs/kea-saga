@@ -1,11 +1,15 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, keaReducer, getStore, activatePlugin } from 'kea'
-import sagaPlugin, { keaSaga } from '../index'
+import { kea, resetKeaCache, getStore, activatePlugin } from 'kea'
+import sagaPlugin from '../index'
 
 import { PropTypes } from 'prop-types'
-import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import createSagaMiddleware from 'redux-saga'
 import { put, take } from 'redux-saga/effects'
+import React from 'react'
+import { mount, configure } from 'enzyme'
+import { Provider } from 'react-redux'
+import Adapter from 'enzyme-adapter-react-16'
+
+configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetKeaCache()
@@ -39,9 +43,7 @@ test('can run sagas connected via { sagas: [] }', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(false)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -53,7 +55,8 @@ test('can run sagas connected via { sagas: [] }', () => {
 })
 
 test('connect when passing the entire logic to sagas: []', () => {
-  const sagaMiddleware = getStore()._sagaMiddleware
+  const store = getStore()
+  const sagaMiddleware = store._sagaMiddleware
 
   let otherConnectedRan = false
   let sagaRan = false
@@ -82,44 +85,35 @@ test('connect when passing the entire logic to sagas: []', () => {
   sagaMiddleware.run(sagaLogic2.saga)
 
   expect(sagaRan).toBe(true)
-  expect(connectedSagaRan).toBe(true)
+  // it will not run with .saga, as we track the logic connection separately
+  expect(connectedSagaRan).toBe(false)
+  // the function * () {} connected saga should run though
   expect(otherConnectedRan).toBe(true)
-})
 
-test('connect without specifiying .saga', () => {
-  const sagaMiddleware = getStore()._sagaMiddleware
+  // try again and now mount the component
+  otherConnectedRan = false
+  sagaRan = false
+  connectedSagaRan = false
 
-  let sagaRan = false
-  let connectedSagaRan = false
+  const ConnectedComponent = sagaLogic2(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
-  const connectedSagaLogic = kea({
-    path: () => ['scenes', 'saga', 'connected'],
-    start: function * () {
-      expect(this.path).toEqual(['scenes', 'saga', 'connected'])
-      connectedSagaRan = true
-    }
-  })
-
-  const sagaLogic3 = kea({
-    sagas: [connectedSagaLogic],
-    start: function * () {
-      sagaRan = true
-    }
-  })
-
-  sagaMiddleware.run(sagaLogic3.saga)
-
+  // everything should have run
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
+  expect(otherConnectedRan).toBe(true)
+  wrapper.unmount()
 })
 
 test('sagas get connected actions', () => {
+  const store = getStore()
+
   let sagaRan = false
   let connectedSagaRan = false
-
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
 
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
@@ -156,35 +150,30 @@ test('sagas get connected actions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(true)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-
-  finalCreateStore(reducers)
-
-  sagaMiddleware.run(keaSaga)
-  sagaMiddleware.run(sagaLogic.saga)
+  const ConnectedComponent = sagaLogic(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
+
+  wrapper.unmount()
 })
 
 test('can get/fetch data from connected kea logic stores', () => {
   let sagaRan = false
   let connectedSagaRan = false
 
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
+  const store = getStore()
 
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
@@ -244,34 +233,24 @@ test('can get/fetch data from connected kea logic stores', () => {
 
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-
-  finalCreateStore(reducers)
-
-  sagaMiddleware.run(keaSaga)
-  sagaMiddleware.run(sagaLogic.saga)
+  const ConnectedComponent = sagaLogic(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
+
+  wrapper.unmount()
 })
 
 test('will autorun sagas if not manually connected', () => {
   let sagaRan = false
   let connectedSagaRan = false
 
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
-
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
-  sagaMiddleware.run(keaSaga)
+  const store = getStore()
 
   const connectedSagaLogic = kea({
     actions: () => ({
@@ -298,25 +277,23 @@ test('will autorun sagas if not manually connected', () => {
     }
   })
 
-  sagaMiddleware.run(sagaLogic.saga)
+  const ConnectedComponent = sagaLogic(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
+
+  wrapper.unmount()
 })
 
 test('will autorun sagas if not manually connected, even if no internal saga', () => {
   let connectedSagaRan = false
 
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
-
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
-  sagaMiddleware.run(keaSaga)
+  const store = getStore()
 
   const connectedSagaLogic = kea({
     actions: () => ({
@@ -337,26 +314,24 @@ test('will autorun sagas if not manually connected, even if no internal saga', (
     }
   })
 
-  sagaMiddleware.run(sagaLogic.saga)
+  const ConnectedComponent = sagaLogic(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
   expect(connectedSagaRan).toBe(true)
+
+  wrapper.unmount()
 })
 
 test('will not run sagas that are already running', () => {
   let sagaRan = false
   let connectedSagaRan = 0
 
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
-
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
-  sagaMiddleware.run(keaSaga)
+  const store = getStore()
 
   const connectedSagaLogic = kea({
     actions: () => ({
@@ -389,8 +364,15 @@ test('will not run sagas that are already running', () => {
     }
   })
 
-  sagaMiddleware.run(sagaLogic.saga)
+  const ConnectedComponent = sagaLogic(() => <div />)
+  const wrapper = mount(
+    <Provider store={store}>
+      <ConnectedComponent />
+    </Provider>
+  )
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(1)
+
+  wrapper.unmount()
 })

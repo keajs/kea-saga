@@ -5,9 +5,12 @@ import sagaPlugin from '../index' // install the plugin
 import './helper/jsdom'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { mount } from 'enzyme'
+import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
+import Adapter from 'enzyme-adapter-react-16'
+
+configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetKeaCache()
@@ -90,7 +93,8 @@ test('the actions get a key', () => {
       expect(Object.keys(this.actions)).toEqual(['something', 'myAction'])
 
       const { myAction } = this.actions
-      expect(myAction('something')).toEqual({ type: myAction.toString(), payload: { key: 12, value: 'something' } })
+      expect(myAction('something')).toEqual({ type: myAction.toString(), payload: { value: 'something' } })
+      expect(myAction.toString()).toContain('sagaProps.12')
 
       expect(yield this.get('someData')).toEqual('nothing')
       yield put(myAction('something'))

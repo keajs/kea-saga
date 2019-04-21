@@ -30,9 +30,7 @@ test('can have a kea with only a saga', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(false)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -78,9 +76,7 @@ test('can access defined actions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -139,9 +135,7 @@ test('takeEvery and takeLatest work with workers', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).toBeDefined()
@@ -205,12 +199,10 @@ test('takeEvery and takeLatest work with inline functions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).toEqual({})
+  expect(sagaLogic.workers).not.toBeDefined()
 
   expect(sagaRan).toBe(false)
 
@@ -236,6 +228,7 @@ test('can access values on reducer', () => {
   let sagaRan = false
 
   const reducers = combineReducers({
+    kea: keaReducer('kea'),
     scenes: keaReducer('scenes')
   })
 
@@ -266,12 +259,10 @@ test('can access values on reducer', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic._hasKeaConnect).toBe(false)
-  expect(sagaLogic._hasKeaLogic).toBe(true)
-  expect(sagaLogic._keaPlugins.saga).toBe(true)
+  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
 
   expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).toEqual({})
+  expect(sagaLogic.workers).not.toBeDefined()
 
   expect(sagaRan).toBe(false)
 

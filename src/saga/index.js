@@ -19,7 +19,7 @@ export default {
 
   // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
   // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
-  afterCreateConnect (input, output, addConncetion) {
+  afterConnect (input, output, addConncetion) {
     let connectedSagas = []
 
     if (input.sagas || (input.connect && input.connect.sagas)) {

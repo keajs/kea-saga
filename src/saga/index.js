@@ -19,7 +19,7 @@ export default {
 
   // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
   // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
-  afterConnect (input, output, addConncetion) {
+  afterConnect (logic, input, addConncetion) {
     let connectedSagas = []
 
     if (input.sagas || (input.connect && input.connect.sagas)) {
@@ -27,7 +27,7 @@ export default {
 
       for (let saga of sagas) {
         if (saga._isKeaFunction) {
-          addConncetion(output, saga)
+          addConncetion(logic, saga)
         } else {
           connectedSagas.push(saga)
         }
@@ -35,24 +35,24 @@ export default {
     }
 
     if (connectedSagas.length > 0) {
-      output.connectedSagas = connectedSagas
+      logic.connectedSagas = connectedSagas
     }
   },
 
-  afterCreate (input, output) {
+  afterCreate (logic, input) {
     // add .fetch() & .get() to all logic stores if there are any selectors
-    if (output.selectors && Object.keys(output.selectors).length > 0) {
-      output.get = function * (key) {
-        return yield select(key ? output.selectors[key] : output.selector, output.props)
+    if (logic.selectors && Object.keys(logic.selectors).length > 0) {
+      logic.get = function * (key) {
+        return yield select(key ? logic.selectors[key] : logic.selector, logic.props)
       }
 
-      output.fetch = function * () {
+      logic.fetch = function * () {
         let results = {}
 
         const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
 
         for (let i = 0; i < keys.length; i++) {
-          results[keys[i]] = yield output.get(keys[i])
+          results[keys[i]] = yield logic.get(keys[i])
         }
 
         return results
@@ -60,26 +60,16 @@ export default {
     }
 
     // add .saga and .workers (if needed)
-    if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || output.connectedSagas) {
-      createSaga(input, output)
+    if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
+      createSaga(logic, input)
     }
   },
 
-  beforeMount (logic, props) {
-    if (logic.saga) {
-      logic.props = props
-    }
+  mounted (pathString, logic) {
+    logic.saga && startSaga(pathString, logic.saga)
   },
 
-  mountedPath (pathString, logic) {
-    if (logic.saga) {
-      startSaga(pathString, logic.saga)
-    }
-  },
-
-  unmountedPath (pathString, logic) {
-    if (logic.saga) {
-      cancelSaga(pathString)
-    }
+  unmounted (pathString, logic) {
+    logic.saga && cancelSaga(pathString)
   }
 }

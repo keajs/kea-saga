@@ -1,18 +1,18 @@
 import { fork, call, cancel, cancelled, take, takeEvery, takeLatest } from 'redux-saga/effects'
 
-export function createSaga (input, output) {
-  // bind workers and save to output
+export function createSaga (logic, input) {
+  // bind workers and save to logic
   if (input.workers) {
-    output.workers = {}
+    logic.workers = {}
     for (let key of Object.keys(input.workers)) {
       if (typeof input.workers[key] === 'function') {
-        output.workers[key] = input.workers[key].bind(output)
+        logic.workers[key] = input.workers[key].bind(logic)
       }
     }
   }
 
   // generate the saga
-  output.saga = function * () {
+  logic.saga = function * () {
     let workers = []
 
     try {
@@ -21,33 +21,33 @@ export function createSaga (input, output) {
 
       for (let op of Object.keys(ops)) {
         if (input[op]) {
-          let list = input[op](output)
+          let list = input[op](logic)
 
           let keys = Object.keys(list)
           for (let i = 0; i < keys.length; i++) {
             let fn = list[keys[i]]
             if (Array.isArray(fn)) {
               for (let j = 0; j < fn.length; j++) {
-                yield ops[op](keys[i], fn[j].bind(output))
+                yield ops[op](keys[i], fn[j].bind(logic))
               }
             } else {
-              yield ops[op](keys[i], fn.bind(output))
+              yield ops[op](keys[i], fn.bind(logic))
             }
           }
         }
       }
 
-      if (output.connectedSagas) {
-        for (let saga of output.connectedSagas) {
+      if (logic.connectedSagas) {
+        for (let saga of logic.connectedSagas) {
           workers.push(yield fork(saga))
         }
       }
 
       if (input.start) {
-        yield call(input.start.bind(output))
+        yield call(input.start.bind(logic))
       }
 
-      if (input.stop || output.connectedSagas) {
+      if (input.stop || logic.connectedSagas) {
         while (true) {
           yield take('wait until worker cancellation')
         }
@@ -56,9 +56,9 @@ export function createSaga (input, output) {
       // call the cancelled function if cancelled
       if (yield cancelled()) {
         if (input.stop) {
-          yield call(input.stop.bind(output))
+          yield call(input.stop.bind(logic))
         }
-        if (output.connectedSagas) {
+        if (logic.connectedSagas) {
           for (let saga of workers) {
             yield cancel(saga)
           }

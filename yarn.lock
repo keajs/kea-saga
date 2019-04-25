@@ -3843,9 +3843,9 @@ jsx-ast-utils@^2.0.0:
   dependencies:
     array-includes "^3.0.3"
 
-kea@^1.0.0-beta.0:
-  version "1.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/kea/-/kea-1.0.0-beta.0.tgz#ddb676f733c37a9af61f53f686a20f101eb9e8d2"
+kea@^1.0.0-beta.6:
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/kea/-/kea-1.0.0-beta.6.tgz#c8a67c07f32e75d2776f53246493a5048d95e852"
   dependencies:
     opencollective "^1.0.3"
 

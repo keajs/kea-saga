@@ -1,5 +1,7 @@
 import createSagaMiddleware from 'redux-saga'
 
+import { addConnection } from 'kea'
+
 import { keaSaga, startSaga, cancelSaga } from './saga'
 import { createSaga } from './create-saga'
 import { select } from 'redux-saga/effects'
@@ -17,51 +19,58 @@ export default {
     store._sagaMiddleware = options._sagaMiddleware
   },
 
-  // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
-  // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
-  afterConnect (logic, input, addConncetion) {
-    let connectedSagas = []
+  defaults: () => ({
+    workers: undefined,
+    saga: undefined
+  }),
 
-    if (input.sagas || (input.connect && input.connect.sagas)) {
-      const sagas = [...(input.sagas || []), ...((input.connect && input.connect.sagas) || [])]
+  logicSteps: {
+    // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
+    // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
+    connect (logic, input) {
+      let connectedSagas = []
 
-      for (let saga of sagas) {
-        if (saga._isKeaFunction) {
-          addConncetion(logic, saga)
-        } else {
-          connectedSagas.push(saga)
+      if (input.sagas || (input.connect && input.connect.sagas)) {
+        const sagas = [...(input.sagas || []), ...((input.connect && input.connect.sagas) || [])]
+
+        for (let saga of sagas) {
+          if (saga._isKeaFunction) {
+            addConnection(logic, saga)
+          } else {
+            connectedSagas.push(saga)
+          }
         }
       }
-    }
 
-    if (connectedSagas.length > 0) {
-      logic.connectedSagas = connectedSagas
-    }
-  },
-
-  afterCreate (logic, input) {
-    // add .fetch() & .get() to all logic stores if there are any selectors
-    if (logic.selectors && Object.keys(logic.selectors).length > 0) {
-      logic.get = function * (key) {
-        return yield select(key ? logic.selectors[key] : logic.selector, logic.props)
+      if (connectedSagas.length > 0) {
+        logic.connectedSagas = connectedSagas
       }
+    },
 
-      logic.fetch = function * () {
-        let results = {}
-
-        const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
-
-        for (let i = 0; i < keys.length; i++) {
-          results[keys[i]] = yield logic.get(keys[i])
+    saga (logic, input) {
+      // add .fetch() & .get() to all logic stores if there are any selectors
+      if (logic.selectors && Object.keys(logic.selectors).length > 0) {
+        logic.get = function * (key) {
+          return yield select(key ? logic.selectors[key] : logic.selector, logic.props)
         }
 
-        return results
-      }
-    }
+        logic.fetch = function * () {
+          let results = {}
 
-    // add .saga and .workers (if needed)
-    if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
-      createSaga(logic, input)
+          const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
+
+          for (let i = 0; i < keys.length; i++) {
+            results[keys[i]] = yield logic.get(keys[i])
+          }
+
+          return results
+        }
+      }
+
+      // add .saga and .workers (if needed)
+      if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
+        createSaga(logic, input)
+      }
     }
   },
 

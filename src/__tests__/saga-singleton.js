@@ -30,7 +30,7 @@ test('can have a kea with only a saga', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -76,7 +76,7 @@ test('can access defined actions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -135,7 +135,7 @@ test('takeEvery and takeLatest work with workers', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).toBeDefined()
@@ -199,7 +199,7 @@ test('takeEvery and takeLatest work with inline functions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).not.toBeDefined()
@@ -259,7 +259,7 @@ test('can access values on reducer', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).not.toBeDefined()

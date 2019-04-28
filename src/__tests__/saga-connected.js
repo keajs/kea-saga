@@ -43,7 +43,7 @@ test('can run sagas connected via { sagas: [] }', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -150,7 +150,7 @@ test('sagas get connected actions', () => {
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
 
@@ -321,7 +321,7 @@ test('will autorun sagas if not manually connected, even if no internal saga', (
     </Provider>
   )
 
-  expect(sagaLogic.plugins.map(p => p.name)).toEqual(['saga'])
+  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
   expect(connectedSagaRan).toBe(true)
 
   wrapper.unmount()

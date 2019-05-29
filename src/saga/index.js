@@ -20,6 +20,8 @@ export default {
   },
 
   defaults: () => ({
+    get: undefined,
+    fetch: undefined,
     workers: undefined,
     saga: undefined
   }),

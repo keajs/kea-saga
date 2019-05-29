@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, getStore, activatePlugin } from 'kea'
+import { kea, resetContext, getStore, activatePlugin } from 'kea'
 import sagaPlugin from '../index'
 
 import { PropTypes } from 'prop-types'
@@ -12,7 +12,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetKeaCache()
+  resetContext()
   activatePlugin(sagaPlugin)
 })
 

@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, keaReducer, activatePlugin } from 'kea'
+import { kea, resetContext, keaReducer, activatePlugin } from 'kea'
 import sagaPlugin, { keaSaga } from '../index'
 
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
@@ -9,7 +9,7 @@ import { put } from 'redux-saga/effects'
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetKeaCache()
+  resetContext()
   activatePlugin(sagaPlugin)
 })
 

@@ -12,42 +12,10 @@ beforeEach(() => {
   resetContext({ plugins: [ sagaPlugin ] })
 })
 
-test('can have a kea with only a saga', () => {
+test('takeEvery and takeLatest work with workers', () => {
   let sagaRan = false
-
-  // must run keaReducer at first so there is a point where to mount the keas
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
-
-  const sagaLogic = kea({
-    start: function * () {
-      expect(this.get).not.toBeDefined()
-      expect(this.fetch).not.toBeDefined()
-      sagaRan = true
-    }
-  })
-
-  expect(sagaLogic._isKeaSingleton).toBe(true)
-  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
-
-  expect(sagaLogic.saga).toBeDefined()
-
-  expect(sagaRan).toBe(false)
-
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
-
-  sagaMiddleware.run(sagaLogic.saga)
-
-  expect(sagaRan).toBe(true)
-})
-
-test('can access defined actions', () => {
-  let sagaRan = false
+  let everyRan = false
+  let latestRan = false
 
   const reducers = combineReducers({
     scenes: keaReducer('scenes')
@@ -55,22 +23,33 @@ test('can access defined actions', () => {
 
   const sagaLogic = kea({
     actions: () => ({
-      doSomething: (input) => ({ input })
+      doEvery: (input) => ({ input }),
+      doLatest: (input) => ({ input })
     }),
     reducers: ({ actions }) => ({
       something: [false, PropTypes.bool, {}]
     }),
     start: function * () {
-      expect(this.path).toBeDefined()
-      expect(this.actions).toBeDefined()
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
-      expect(Object.keys(this.actions)).toEqual([ 'doSomething' ])
-
-      const { doSomething } = this.actions
-      expect(doSomething('input-text')).toEqual({ type: doSomething.toString(), payload: { input: 'input-text' } })
-
       sagaRan = true
+    },
+    takeEvery: ({ actions, workers }) => ({
+      [actions.doEvery]: workers.doEvery
+    }),
+    takeLatest: ({ actions, workers }) => ({
+      [actions.doLatest]: workers.doLatest
+    }),
+    workers: {
+      * doEvery () {
+        expect(this.actions).toBeDefined()
+        expect(this.get).toBeDefined()
+        expect(this.fetch).toBeDefined()
+        everyRan = true
+      },
+      * doLatest () {
+        latestRan = true
+      }
     }
   })
 
@@ -78,6 +57,8 @@ test('can access defined actions', () => {
   expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
+  expect(sagaLogic.workers).toBeDefined()
+  expect(Object.keys(sagaLogic.workers)).toEqual(['doEvery', 'doLatest'])
 
   expect(sagaRan).toBe(false)
 
@@ -85,45 +66,55 @@ test('can access defined actions', () => {
   const finalCreateStore = compose(
     applyMiddleware(sagaMiddleware)
   )(createStore)
-  finalCreateStore(reducers)
 
+  const store = finalCreateStore(reducers)
+
+  sagaMiddleware.run(keaSaga)
   sagaMiddleware.run(sagaLogic.saga)
 
+  store.dispatch(sagaLogic.actions.doEvery('input-every'))
+  store.dispatch(sagaLogic.actions.doLatest('input-latest'))
+
   expect(sagaRan).toBe(true)
+  expect(everyRan).toBe(true)
+  expect(latestRan).toBe(true)
 })
 
-test('can access values on reducer', () => {
+test('takeEvery and takeLatest work with inline functions', () => {
   let sagaRan = false
+  let everyRan = false
+  let latestRan = false
 
   const reducers = combineReducers({
-    kea: keaReducer('kea'),
     scenes: keaReducer('scenes')
   })
 
   const sagaLogic = kea({
     actions: () => ({
-      setString: (string) => ({ string })
+      doEvery: (input) => ({ input }),
+      doLatest: (input) => ({ input })
     }),
     reducers: ({ actions }) => ({
-      ourString: ['nothing', PropTypes.string, {
-        [actions.setString]: (state, payload) => payload.string
-      }]
+      something: [false, PropTypes.bool, {}]
     }),
     start: function * () {
-      const { setString } = this.actions
-
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
-
-      expect(yield this.get('ourString')).toBe('nothing')
-
-      yield put(setString('something'))
-
-      expect(yield this.get('ourString')).toBe('something')
-      expect(yield this.fetch('ourString')).toEqual({ ourString: 'something' })
-
       sagaRan = true
-    }
+    },
+    takeEvery: ({ actions, workers }) => ({
+      [actions.doEvery]: function * () {
+        expect(this.actions).toBeDefined()
+        expect(this.get).toBeDefined()
+        expect(this.fetch).toBeDefined()
+        everyRan = true
+      }
+    }),
+    takeLatest: ({ actions, workers }) => ({
+      [actions.doLatest]: function * () {
+        latestRan = true
+      }
+    })
   })
 
   expect(sagaLogic._isKeaSingleton).toBe(true)
@@ -139,13 +130,15 @@ test('can access values on reducer', () => {
     applyMiddleware(sagaMiddleware)
   )(createStore)
 
-  const context = getContext()
-  context.store = finalCreateStore(reducers)
-
-  sagaLogic.mount()
+  const store = finalCreateStore(reducers)
 
   sagaMiddleware.run(keaSaga)
   sagaMiddleware.run(sagaLogic.saga)
 
+  store.dispatch(sagaLogic.actions.doEvery('input-every'))
+  store.dispatch(sagaLogic.actions.doLatest('input-latest'))
+
   expect(sagaRan).toBe(true)
+  expect(everyRan).toBe(true)
+  expect(latestRan).toBe(true)
 })

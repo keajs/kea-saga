@@ -13,8 +13,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext()
-  // activatePlugin(sagaPlugin)
+  resetContext({ plugins: [ sagaPlugin ] })
 })
 
 function SampleComponent () {
@@ -26,7 +25,7 @@ function SampleComponent () {
 }
 
 test('the saga starts and stops with the component', () => {
-  const store = getStore({ plugins: [ sagaPlugin ] })
+  const store = getStore()
 
   let sagaStarted = false
 
@@ -52,7 +51,7 @@ test('the saga starts and stops with the component', () => {
 })
 
 test('the actions get a key', () => {
-  const store = getStore({ plugins: [ sagaPlugin ] })
+  const store = getStore()
 
   let sagaStarted = false
   let takeEveryRan = false

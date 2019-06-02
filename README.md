@@ -130,7 +130,7 @@ export default class Slider extends Component {
 
 # Store setup
 
-If you're using the `getStore()` helper from Kea, saga functionality is automatically added to the store, provided you give it the plugin.
+If you're using the `getContext().store` helper from Kea, saga functionality is automatically added to the store, provided you give it the plugin.
 
 However if you wish to manually set up your store, here are the steps:
 

@@ -87,7 +87,7 @@ export default {
   beforeCloseContext (context) {
     const { store } = context || getContext()
     store && store.dispatch(END)
-    if (store._keaSagaTask && store._keaSagaTask.isRunning()) {
+    if (store && store._keaSagaTask && store._keaSagaTask.isRunning()) {
       store._keaSagaTask.cancel()
     }
   }

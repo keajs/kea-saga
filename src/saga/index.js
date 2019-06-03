@@ -1,6 +1,6 @@
-import createSagaMiddleware from 'redux-saga'
+import createSagaMiddleware, { END } from 'redux-saga'
 
-import { addConnection } from 'kea'
+import { addConnection, getContext } from 'kea'
 
 import { keaSaga, startSaga, cancelSaga } from './saga'
 import { createSaga } from './create-saga'
@@ -82,5 +82,10 @@ export default {
 
   unmounted (pathString, logic) {
     logic.saga && cancelSaga(pathString)
+  },
+
+  beforeCloseContext (context) {
+    const { store } = context || getContext()
+    store && store.dispatch(END)
   }
 }

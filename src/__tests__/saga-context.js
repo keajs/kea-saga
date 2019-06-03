@@ -5,17 +5,10 @@ import sagaPlugin from '../index' // install the plugin
 import './helper/jsdom'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
 import { put, delay } from 'redux-saga/effects'
-import Adapter from 'enzyme-adapter-react-16'
 
 const promiseDelay =  ms => new Promise((resolve) => setTimeout(resolve, ms))
-
-configure({ adapter: new Adapter() })
-
-beforeEach(() => {
-})
 
 test('sagas stop when context resets', () => { 
   let counter = 0
@@ -134,5 +127,5 @@ test('forks stop when context resets', async () => {
 
   expect(counter).toBe(1)
   await promiseDelay(1001)
-  // expect(counter).toBe(2) // should not be 3!
+  expect(counter).toBe(2) // should not be 3!
 })

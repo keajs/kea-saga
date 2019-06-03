@@ -15,7 +15,7 @@ export default {
   },
 
   afterReduxStore (options, store) {
-    options._sagaMiddleware.run(keaSaga)
+    store._keaSagaTask = options._sagaMiddleware.run(keaSaga)
     store._sagaMiddleware = options._sagaMiddleware
   },
 
@@ -87,5 +87,8 @@ export default {
   beforeCloseContext (context) {
     const { store } = context || getContext()
     store && store.dispatch(END)
+    if (store._keaSagaTask && store._keaSagaTask.isRunning()) {
+      store._keaSagaTask.cancel()
+    }
   }
 }

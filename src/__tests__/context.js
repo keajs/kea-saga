@@ -1,16 +1,13 @@
-/* global test, expect, beforeEach */
+/* global test, expect */
 import { kea, resetContext, getStore, getContext } from 'kea'
 import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Provider } from 'react-redux'
-import { put, delay } from 'redux-saga/effects'
+import { delay } from 'redux-saga/effects'
 
-const promiseDelay =  ms => new Promise((resolve) => setTimeout(resolve, ms))
+const promiseDelay = ms => new Promise((resolve) => setTimeout(resolve, ms))
 
-test('sagas stop when context resets', () => { 
+test('sagas stop when context resets', () => {
   let counter = 0
 
   resetContext({ plugins: [ sagaPlugin ] })
@@ -24,19 +21,19 @@ test('sagas stop when context resets', () => {
     reducers: ({ actions }) => ({
       reducerCounter: [0, {
         [actions.increment]: (state) => state + 1
-      }],
+      }]
     }),
 
     takeEvery: ({ actions }) => ({
       [actions.increment]: function * () {
         counter += 1
-      }  
+      }
     })
   })
 
   expect(counter).toBe(0)
 
-  const unmount = logic.mount()
+  logic.mount()
 
   expect(counter).toBe(0)
 
@@ -46,8 +43,7 @@ test('sagas stop when context resets', () => {
   expect(logic.selectors.reducerCounter(store.getState())).toBe(1)
   expect(counter).toBe(1)
 
-  // leave mounted on purpose!
-  // unmount()
+  // leave logic mounted on purpose!
 
   resetContext({ plugins: [ sagaPlugin ] })
   getStore()
@@ -67,7 +63,7 @@ test('sagas stop when context resets', () => {
   unmount2()
 })
 
-test('forks stop when context resets', async () => { 
+test('forks stop when context resets', async () => {
   let counter = 0
 
   resetContext({ plugins: [ sagaPlugin ] })
@@ -81,14 +77,14 @@ test('forks stop when context resets', async () => {
     reducers: ({ actions }) => ({
       reducerCounter: [0, {
         [actions.increment]: (state) => state + 1
-      }],
+      }]
     }),
 
     takeEvery: ({ actions }) => ({
       [actions.increment]: function * () {
         yield delay(1000)
         counter += 1
-      }  
+      }
     })
   })
 

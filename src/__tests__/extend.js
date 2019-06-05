@@ -3,9 +3,6 @@ import { kea, resetContext, getStore, getContext } from 'kea'
 import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
-import { delay } from 'redux-saga/effects'
-
-const promiseDelay = ms => new Promise((resolve) => setTimeout(resolve, ms))
 
 test('extending sagas works', () => {
   let actionLog = []
@@ -25,6 +22,10 @@ test('extending sagas works', () => {
       actionLog.push('start')
     },
 
+    stop: function * () {
+      actionLog.push('stop')
+    },
+
     takeEvery: ({ actions }) => ({
       [actions.increment]: function * () {
         actionLog.push('takeEvery-increment')
@@ -37,14 +38,16 @@ test('extending sagas works', () => {
       }
     })
   })
-  logic.mount()
+  const unmount1 = logic.mount()
 
   expect(actionLog).toEqual(['start'])
 
   getContext().store.dispatch(logic.actions.increment())
   getContext().store.dispatch(logic.actions.decrement())
 
-  expect(actionLog).toEqual(['start', 'takeEvery-increment', 'takeLatest-decrement'])
+  unmount1()
+
+  expect(actionLog).toEqual(['start', 'takeEvery-increment', 'takeLatest-decrement', 'stop'])
 
   // reset everything
   actionLog = []
@@ -56,6 +59,10 @@ test('extending sagas works', () => {
   logic.extend({
     start: function * () {
       actionLog.push('extend-start')
+    },
+
+    stop: function * () {
+      actionLog.push('extend-stop')
     },
 
     takeEvery: ({ actions }) => ({
@@ -71,7 +78,7 @@ test('extending sagas works', () => {
     })
   })
 
-  logic.mount()
+  const unmount2 = logic.mount()
 
   expect(actionLog).toEqual(['start', 'extend-start'])
 
@@ -80,5 +87,11 @@ test('extending sagas works', () => {
 
   expect(actionLog).toEqual([
     'start', 'extend-start', 'takeEvery-increment', 'extend-takeEvery-increment', 'takeLatest-decrement', 'extend-takeLatest-decrement'
+  ])
+
+  unmount2()
+
+  expect(actionLog).toEqual([
+    'start', 'extend-start', 'takeEvery-increment', 'extend-takeEvery-increment', 'takeLatest-decrement', 'extend-takeLatest-decrement', 'stop', 'extend-stop'
   ])
 })

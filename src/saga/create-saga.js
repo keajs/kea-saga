@@ -3,7 +3,10 @@ import { fork, call, cancel, cancelled, take, takeEvery, takeLatest } from 'redu
 export function createSaga (logic, input) {
   // bind workers and save to logic
   if (input.workers) {
-    logic.workers = {}
+    if (!logic.workers) {
+      logic.workers = {}
+    }
+
     for (let key of Object.keys(input.workers)) {
       if (typeof input.workers[key] === 'function') {
         logic.workers[key] = input.workers[key].bind(logic)
@@ -12,7 +15,7 @@ export function createSaga (logic, input) {
   }
 
   // generate the saga
-  logic.saga = function * () {
+  const saga = function * () {
     let workers = []
 
     try {
@@ -65,5 +68,15 @@ export function createSaga (logic, input) {
         }
       }
     }
+  }
+
+  if (logic.saga) {
+    const oldSaga = logic.saga
+    logic.saga = function * () {
+      yield fork(oldSaga)
+      yield fork(saga)
+    }
+  } else {
+    logic.saga = saga
   }
 }

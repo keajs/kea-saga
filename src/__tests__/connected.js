@@ -42,7 +42,7 @@ test('can run sagas connected via { sagas: [] }', () => {
     }
   })
 
-  expect(sagaLogic._isKeaSingleton).toBe(true)
+  expect(sagaLogic._isKea).toBe(true)
   expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
@@ -149,7 +149,7 @@ test('sagas get connected actions', () => {
     }
   })
 
-  expect(sagaLogic._isKeaSingleton).toBe(true)
+  expect(sagaLogic._isKea).toBe(true)
   expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()

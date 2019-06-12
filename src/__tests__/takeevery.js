@@ -52,7 +52,7 @@ test('takeEvery and takeLatest work with workers', () => {
     }
   })
 
-  expect(sagaLogic._isKeaSingleton).toBe(true)
+  expect(sagaLogic._isKea).toBe(true)
   expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
@@ -116,7 +116,7 @@ test('takeEvery and takeLatest work with inline functions', () => {
     })
   })
 
-  expect(sagaLogic._isKeaSingleton).toBe(true)
+  expect(sagaLogic._isKea).toBe(true)
   expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()

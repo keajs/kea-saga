@@ -9,16 +9,6 @@ import { select } from 'redux-saga/effects'
 export default {
   name: 'saga',
 
-  beforeReduxStore (options) {
-    options._sagaMiddleware = createSagaMiddleware()
-    options.middleware.push(options._sagaMiddleware)
-  },
-
-  afterReduxStore (options, store) {
-    store._keaSagaTask = options._sagaMiddleware.run(keaSaga)
-    store._sagaMiddleware = options._sagaMiddleware
-  },
-
   defaults: () => ({
     get: undefined,
     fetch: undefined,
@@ -26,7 +16,7 @@ export default {
     saga: undefined
   }),
 
-  logicSteps: {
+  buildSteps: {
     // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
     // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
     connect (logic, input) {
@@ -36,7 +26,7 @@ export default {
         const sagas = [...(input.sagas || []), ...((input.connect && input.connect.sagas) || [])]
 
         for (let saga of sagas) {
-          if (saga._isKeaFunction) {
+          if (saga._isKea) {
             addConnection(logic, saga)
           } else {
             connectedSagas.push(saga)
@@ -76,19 +66,31 @@ export default {
     }
   },
 
-  mounted (pathString, logic) {
-    logic.saga && startSaga(pathString, logic.saga)
-  },
+  events: {
+    beforeReduxStore (options) {
+      options._sagaMiddleware = createSagaMiddleware()
+      options.middleware.push(options._sagaMiddleware)
+    },
 
-  unmounted (pathString, logic) {
-    logic.saga && cancelSaga(pathString)
-  },
+    afterReduxStore (options, store) {
+      store._keaSagaTask = options._sagaMiddleware.run(keaSaga)
+      store._sagaMiddleware = options._sagaMiddleware
+    },
 
-  beforeCloseContext (context) {
-    const { store } = context || getContext()
-    store && store.dispatch(END)
-    if (store && store._keaSagaTask && store._keaSagaTask.isRunning()) {
-      store._keaSagaTask.cancel()
+    afterMount (pathString, logic) {
+      logic.saga && startSaga(pathString, logic.saga)
+    },
+
+    afterUnmount (pathString, logic) {
+      logic.saga && cancelSaga(pathString)
+    },
+
+    beforeCloseContext (context) {
+      const { store } = context || getContext()
+      store && store.dispatch(END)
+      if (store && store._keaSagaTask && store._keaSagaTask.isRunning()) {
+        store._keaSagaTask.cancel()
+      }
     }
   }
 }

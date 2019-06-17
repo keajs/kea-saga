@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, keaReducer } from 'kea'
+import { kea, resetContext, keaReducer, getContext } from 'kea'
 import sagaPlugin, { keaSaga } from '../index'
 
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
@@ -53,7 +53,7 @@ test('takeEvery and takeLatest work with workers', () => {
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).toBeDefined()
@@ -117,7 +117,7 @@ test('takeEvery and takeLatest work with inline functions', () => {
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(sagaLogic.plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).not.toBeDefined()

@@ -71,8 +71,8 @@ test('takeEvery and takeLatest work with workers', () => {
   sagaMiddleware.run(keaSaga)
   sagaMiddleware.run(sagaLogic.saga)
 
-  store.dispatch(sagaLogic.actions.doEvery('input-every'))
-  store.dispatch(sagaLogic.actions.doLatest('input-latest'))
+  store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
+  store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
 
   expect(sagaRan).toBe(true)
   expect(everyRan).toBe(true)
@@ -134,8 +134,8 @@ test('takeEvery and takeLatest work with inline functions', () => {
   sagaMiddleware.run(keaSaga)
   sagaMiddleware.run(sagaLogic.saga)
 
-  store.dispatch(sagaLogic.actions.doEvery('input-every'))
-  store.dispatch(sagaLogic.actions.doLatest('input-latest'))
+  store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
+  store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
 
   expect(sagaRan).toBe(true)
   expect(everyRan).toBe(true)

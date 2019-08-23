@@ -38,7 +38,7 @@ test('sagas stop when context resets', () => {
   expect(counter).toBe(0)
 
   const { store } = getContext()
-  store.dispatch(logic.actions.increment())
+  store.dispatch(logic.actionCreators.increment())
 
   expect(logic.selectors.reducerCounter(store.getState())).toBe(1)
   expect(counter).toBe(1)
@@ -55,7 +55,7 @@ test('sagas stop when context resets', () => {
   expect(logic.selectors.reducerCounter(store2.getState())).toBe(0)
   expect(counter).toBe(1)
 
-  store2.dispatch(logic.actions.increment())
+  store2.dispatch(logic.actionCreators.increment())
 
   expect(logic.selectors.reducerCounter(store2.getState())).toBe(1)
   expect(counter).toBe(2)
@@ -93,7 +93,7 @@ test('forks stop when context resets', async () => {
   expect(counter).toBe(0)
 
   const { store } = getContext()
-  store.dispatch(logic.actions.increment())
+  store.dispatch(logic.actionCreators.increment())
 
   // reducerCounter increments immediately
   expect(logic.selectors.reducerCounter(store.getState())).toBe(1)
@@ -103,8 +103,8 @@ test('forks stop when context resets', async () => {
   await promiseDelay(1001)
   expect(counter).toBe(1)
 
-  // dispatch new action 
-  store.dispatch(logic.actions.increment())
+  // dispatch new action
+  store.dispatch(logic.actionCreators.increment())
 
   // and reset the context
   resetContext({ plugins: [ sagaPlugin ] })
@@ -117,7 +117,7 @@ test('forks stop when context resets', async () => {
   expect(logic.selectors.reducerCounter(store2.getState())).toBe(0)
   expect(counter).toBe(1)
 
-  store2.dispatch(logic.actions.increment())
+  store2.dispatch(logic.actionCreators.increment())
 
   expect(logic.selectors.reducerCounter(store2.getState())).toBe(1)
 

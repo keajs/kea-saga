@@ -42,8 +42,8 @@ test('extending sagas works', () => {
 
   expect(actionLog).toEqual(['start'])
 
-  getContext().store.dispatch(logic.actions.increment())
-  getContext().store.dispatch(logic.actions.decrement())
+  getContext().store.dispatch(logic.actionCreators.increment())
+  getContext().store.dispatch(logic.actionCreators.decrement())
 
   unmount1()
 
@@ -82,8 +82,8 @@ test('extending sagas works', () => {
 
   expect(actionLog).toEqual(['start', 'extend-start'])
 
-  getContext().store.dispatch(logic.actions.increment())
-  getContext().store.dispatch(logic.actions.decrement())
+  getContext().store.dispatch(logic.actionCreators.increment())
+  getContext().store.dispatch(logic.actionCreators.decrement())
 
   expect(actionLog).toEqual([
     'start', 'extend-start', 'takeEvery-increment', 'extend-takeEvery-increment', 'takeLatest-decrement', 'extend-takeLatest-decrement'

@@ -77,12 +77,12 @@ export default {
       store._sagaMiddleware = options._sagaMiddleware
     },
 
-    afterMount (pathString, logic) {
-      logic.saga && startSaga(pathString, logic.saga)
+    afterMount (logic) {
+      logic.saga && startSaga(logic.pathString, logic.saga)
     },
 
-    afterUnmount (pathString, logic) {
-      logic.saga && cancelSaga(pathString)
+    afterUnmount (logic) {
+      logic.saga && cancelSaga(logic.pathString)
     },
 
     beforeCloseContext (context) {

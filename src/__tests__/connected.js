@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, getStore, activatePlugin, getContext } from 'kea'
+import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index'
 
 import { PropTypes } from 'prop-types'
@@ -12,13 +12,10 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext()
-  activatePlugin(sagaPlugin)
+  resetContext({ plugins: [ sagaPlugin ], createStore: true })
 })
 
 test('can run sagas connected via { sagas: [] }', () => {
-  const sagaMiddleware = getStore()._sagaMiddleware
-
   let sagaRan = false
   let connectedSagaRan = false
   let ranLast
@@ -34,7 +31,7 @@ test('can run sagas connected via { sagas: [] }', () => {
 
   const sagaLogic = kea({
     path: () => ['scenes', 'saga', 'base'],
-    sagas: [connectedSagaLogic.saga],
+    sagas: [connectedSagaLogic.build().saga],
     start: function * () {
       expect(this.path).toEqual(['scenes', 'saga', 'base'])
       sagaRan = true
@@ -45,9 +42,9 @@ test('can run sagas connected via { sagas: [] }', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
+  sagaLogic.mount()
 
-  sagaMiddleware.run(sagaLogic.saga)
+  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
@@ -55,8 +52,7 @@ test('can run sagas connected via { sagas: [] }', () => {
 })
 
 test('connect when passing the entire logic to sagas: []', () => {
-  const store = getStore()
-  const sagaMiddleware = store._sagaMiddleware
+  const { store } = getContext()
 
   let otherConnectedRan = false
   let sagaRan = false
@@ -82,7 +78,7 @@ test('connect when passing the entire logic to sagas: []', () => {
     }
   })
 
-  sagaMiddleware.run(sagaLogic2.saga)
+  sagaLogic2.mount()
 
   expect(sagaRan).toBe(true)
   // it will not run with .saga, as we track the logic connection separately
@@ -110,7 +106,7 @@ test('connect when passing the entire logic to sagas: []', () => {
 })
 
 test('sagas get connected actions', () => {
-  const store = getStore()
+  const { store } = getContext()
 
   let sagaRan = false
   let connectedSagaRan = false
@@ -152,8 +148,6 @@ test('sagas get connected actions', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-
   expect(sagaRan).toBe(false)
 
   const ConnectedComponent = sagaLogic(() => <div />)
@@ -162,6 +156,8 @@ test('sagas get connected actions', () => {
       <ConnectedComponent />
     </Provider>
   )
+
+  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
@@ -173,7 +169,7 @@ test('can get/fetch data from connected kea logic stores', () => {
   let sagaRan = false
   let connectedSagaRan = false
 
-  const store = getStore()
+  const { store } = getContext()
 
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
@@ -250,7 +246,7 @@ test('will autorun sagas if not manually connected', () => {
   let sagaRan = false
   let connectedSagaRan = false
 
-  const store = getStore()
+  const { store } = getContext()
 
   const connectedSagaLogic = kea({
     actions: () => ({
@@ -293,7 +289,7 @@ test('will autorun sagas if not manually connected', () => {
 test('will autorun sagas if not manually connected, even if no internal saga', () => {
   let connectedSagaRan = false
 
-  const store = getStore()
+  const { store } = getContext()
 
   const connectedSagaLogic = kea({
     actions: () => ({
@@ -331,7 +327,7 @@ test('will not run sagas that are already running', () => {
   let sagaRan = false
   let connectedSagaRan = 0
 
-  const store = getStore()
+  const { store } = getContext()
 
   const connectedSagaLogic = kea({
     actions: () => ({

@@ -1,24 +1,17 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, keaReducer, getContext } from 'kea'
-import sagaPlugin, { keaSaga } from '../index'
+import { kea, resetContext, getContext } from 'kea'
+import sagaPlugin from '../index'
 
-import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import createSagaMiddleware from 'redux-saga'
 import { put } from 'redux-saga/effects'
 
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ] })
+  resetContext({ plugins: [ sagaPlugin ], createStore: true })
 })
 
 test('can have a kea with only a saga', () => {
   let sagaRan = false
-
-  // must run keaReducer at first so there is a point where to mount the keas
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
 
   const sagaLogic = kea({
     start: function * () {
@@ -31,27 +24,19 @@ test('can have a kea with only a saga', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
+  sagaLogic.mount()
 
-  sagaMiddleware.run(sagaLogic.saga)
+  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
 })
 
 test('can access defined actions', () => {
-  let sagaRan = false
+  const { store } = getContext()
 
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
+  let sagaRan = false
 
   const sagaLogic = kea({
     actions: () => ({
@@ -77,28 +62,17 @@ test('can access defined actions', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-  finalCreateStore(reducers)
+  sagaLogic.mount()
 
-  sagaMiddleware.run(sagaLogic.saga)
+  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
 })
 
 test('can access values on reducer', () => {
   let sagaRan = false
-
-  const reducers = combineReducers({
-    kea: keaReducer('kea'),
-    scenes: keaReducer('scenes')
-  })
 
   const sagaLogic = kea({
     actions: () => ({
@@ -129,23 +103,12 @@ test('can access values on reducer', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
-
   expect(sagaRan).toBe(false)
-
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-
-  const context = getContext()
-  context.store = finalCreateStore(reducers)
 
   sagaLogic.mount()
 
-  sagaMiddleware.run(keaSaga)
-  sagaMiddleware.run(sagaLogic.saga)
+  expect(sagaLogic.saga).toBeDefined()
+  expect(sagaLogic.workers).not.toBeDefined()
 
   expect(sagaRan).toBe(true)
 })

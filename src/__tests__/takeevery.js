@@ -1,24 +1,19 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, keaReducer, getContext } from 'kea'
-import sagaPlugin, { keaSaga } from '../index'
-
-import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import createSagaMiddleware from 'redux-saga'
+import { kea, resetContext, getContext } from 'kea'
+import sagaPlugin from '../index'
 
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ] })
+  resetContext({ plugins: [ sagaPlugin ], createStore: true })
 })
 
 test('takeEvery and takeLatest work with workers', () => {
+  const { store } = getContext()
+
   let sagaRan = false
   let everyRan = false
   let latestRan = false
-
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
 
   const sagaLogic = kea({
     actions: () => ({
@@ -55,21 +50,12 @@ test('takeEvery and takeLatest work with workers', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).toBeDefined()
-  expect(Object.keys(sagaLogic.workers)).toEqual(['doEvery', 'doLatest'])
-
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
-
-  const store = finalCreateStore(reducers)
-
-  sagaMiddleware.run(keaSaga)
-  sagaMiddleware.run(sagaLogic.saga)
+  sagaLogic.mount()
+  expect(Object.keys(sagaLogic.workers)).toEqual(['doEvery', 'doLatest'])
+  expect(sagaLogic.saga).toBeDefined()
+  expect(sagaLogic.workers).toBeDefined()
 
   store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
   store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
@@ -80,13 +66,11 @@ test('takeEvery and takeLatest work with workers', () => {
 })
 
 test('takeEvery and takeLatest work with inline functions', () => {
+  const { store } = getContext()
+
   let sagaRan = false
   let everyRan = false
   let latestRan = false
-
-  const reducers = combineReducers({
-    scenes: keaReducer('scenes')
-  })
 
   const sagaLogic = kea({
     actions: () => ({
@@ -119,20 +103,12 @@ test('takeEvery and takeLatest work with inline functions', () => {
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
 
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
-
   expect(sagaRan).toBe(false)
 
-  const sagaMiddleware = createSagaMiddleware()
-  const finalCreateStore = compose(
-    applyMiddleware(sagaMiddleware)
-  )(createStore)
+  sagaLogic.mount()
 
-  const store = finalCreateStore(reducers)
-
-  sagaMiddleware.run(keaSaga)
-  sagaMiddleware.run(sagaLogic.saga)
+  expect(sagaLogic.saga).toBeDefined()
+  expect(sagaLogic.workers).not.toBeDefined()
 
   store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
   store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))

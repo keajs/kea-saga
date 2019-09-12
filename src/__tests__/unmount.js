@@ -1,8 +1,9 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, getStore, activatePlugin } from 'kea'
+import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
+import { delay } from 'redux-saga/effects'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { mount, configure } from 'enzyme'
@@ -12,12 +13,11 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext()
-  activatePlugin(sagaPlugin)
+  resetContext({ plugins: [ sagaPlugin ], createStore: true })
 })
 
-test('the saga starts and stops with the component', () => {
-  const store = getStore()
+test('the saga starts and stops with the component', async () => {
+  const { store } = getContext()
 
   let sagaStarted = false
   let sagaCancelled = false
@@ -54,7 +54,7 @@ test('the saga starts and stops with the component', () => {
 })
 
 test('the saga is cancelled only when all connected components are unmounted', () => {
-  const store = getStore()
+  const { store } = getContext()
 
   let sagaStarted = 0
   let sagaCancelled = 0

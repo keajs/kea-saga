@@ -10,3 +10,7 @@ Redux-Saga side effects for Kea
 # Documentation
 
 Read the docs: https://kea.js.org/effects/saga
+
+## 1.0 breaking change.
+
+If you're upgrading from 0.x, please [read this](https://github.com/keajs/kea-saga/blob/master/CHANGELOG.md#a-note-regarding-sagas-and-actions) regarding the breaking change of automatically bound actions in Kea. If you have just `connect`ed to your actions, everything should work as it did before.

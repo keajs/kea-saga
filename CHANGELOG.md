@@ -1,9 +1,39 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-As we're at the 0.x phase, deprecations and breaking changes will still happen. They will be documented here.
+## 1.0.0 - 2019-09-12
+### Fixed
+- Support for Kea 1.0
 
-Once we react 1.0 all deprecations will be removed and the project will switch to SemVer.
+#### A note regarding Sagas and Actions
+
+Since Kea 1.0 all `actions` on a logic are automatically bound to dispatch. The previous action creators are now accessible via `logic.actionCreators`. 
+
+This means calling `someLogic.actions.doSomething()` will automatically dispatch the action, instead of just returning the an object in the format `{ type: 'do something', payload: {} }`.
+
+Since redux-saga recommends piping all actions through `yield put()` instead of calling `dispatch()` on them, the actions *inside a logic* are **not** bound when used by redux-saga. However if you manually `import` some other logic and then access `logic.actions.doSomething`, this action **will be bound to dispatch**. Placing that inside a `yield put(logic.actions.doSomething())` will fire the action twice!
+
+To get around this, either skip `yield put()` with those actions... or use `logic.actionCreators.doSomething` instead.
+
+This means that the following situation can happen:
+
+```js
+takeEvery: ({ actions }) => ({
+  [actions.someAction]: function * () {
+    // this will be dispatched just once, as actions are not 
+    // bound when accessing from the `actions` object given to `takeEvery`
+    // or from `this.actions`
+    yield put(actions.something()) 
+
+    // this will however be dispatched twice! 
+    yield put(otherLogic.actions.something()) 
+
+    // this will work as expected
+    yield put(otherLogic.actionCreators.something()) 
+  }
+})
+```
+
 
 ## 0.3.5 - 2018-11-28
 ### Fixed

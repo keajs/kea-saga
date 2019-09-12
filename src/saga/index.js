@@ -13,7 +13,8 @@ export default {
     get: undefined,
     fetch: undefined,
     workers: undefined,
-    saga: undefined
+    saga: undefined,
+    connectedSagas: []
   }),
 
   buildOrder: {
@@ -39,7 +40,7 @@ export default {
       }
 
       if (connectedSagas.length > 0) {
-        logic.connectedSagas = connectedSagas
+        logic.connectedSagas = (logic.connectedSagas || []).concat(connectedSagas)
       }
     },
 

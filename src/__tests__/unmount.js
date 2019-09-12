@@ -3,7 +3,6 @@ import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index' // install the plugin
 
 import './helper/jsdom'
-import { delay } from 'redux-saga/effects'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { mount, configure } from 'enzyme'

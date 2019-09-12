@@ -34,8 +34,6 @@ test('can have a kea with only a saga', () => {
 })
 
 test('can access defined actions', () => {
-  const { store } = getContext()
-
   let sagaRan = false
 
   const sagaLogic = kea({

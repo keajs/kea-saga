@@ -7,7 +7,10 @@ import { put } from 'redux-saga/effects'
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ], createStore: true })
+  resetContext({
+    plugins: [ sagaPlugin({ useLegacyUnboundActions: false }) ],
+    createStore: true
+  })
 })
 
 test('can have a kea with only a saga', () => {
@@ -50,7 +53,7 @@ test('can access defined actions', () => {
       expect(this.fetch).toBeDefined()
       expect(Object.keys(this.actions)).toEqual([ 'doSomething' ])
 
-      const { doSomething } = this.actions
+      const { doSomething } = this.actionCreators
       expect(doSomething('input-text')).toEqual({ type: doSomething.toString(), payload: { input: 'input-text' } })
 
       sagaRan = true

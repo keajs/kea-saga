@@ -12,7 +12,10 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ], createStore: true })
+  resetContext({
+    plugins: [ sagaPlugin ],
+    createStore: true
+  })
 })
 
 test('can run sagas connected via { sagas: [] }', () => {

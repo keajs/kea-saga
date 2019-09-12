@@ -1,39 +1,59 @@
 # Change Log
+
 All notable changes to this project will be documented in this file.
 
-## 1.0.0 - 2019-09-12
+## 1.0.1 - 2019-09-12
+
 ### Fixed
+
+1.0.0 had some bugs, please use 1.0.1 instead.
+
+## 1.0.0 - 2019-09-12
+
+### Added
+
 - Support for Kea 1.0
+
+- Added the option `{ useLegacyUnboundActions: true }` to the plugin. It defaults to `true` and when enabled will **not** bind your actions to `dispatch`, unlike everywhere else in Kea. This may cause some issues, but it is a necessary step if you're migrating from 0.28.
 
 #### A note regarding Sagas and Actions
 
-Since Kea 1.0 all `actions` on a logic are automatically bound to dispatch. The previous action creators are now accessible via `logic.actionCreators`. 
+Since Kea 1.0 all `actions` on a logic are automatically bound to dispatch. This was not the case with 0.28 and earlier, where `actions` just returned action creators without dispatching them. The previous action creators are now accessible via `logic.actionCreators`.
 
-This means calling `someLogic.actions.doSomething()` will automatically dispatch the action, instead of just returning the an object in the format `{ type: 'do something', payload: {} }`.
+This means calling `someLogic.actions.doSomething()` will automatically dispatch the action, instead of just returning the an object in the format `{ type: 'do something', payload: {} }`. You can still get that object now by using `someLogic.actionCreators.doSomething()`.
 
-Since redux-saga recommends piping all actions through `yield put()` instead of calling `dispatch()` on them, the actions *inside a logic* are **not** bound when used by redux-saga. However if you manually `import` some other logic and then access `logic.actions.doSomething`, this action **will be bound to dispatch**. Placing that inside a `yield put(logic.actions.doSomething())` will fire the action twice!
+In this `useLegacyUnboundActions` mode, the actions *inside a logic* are **not** bound when used by redux-saga functions (takeEvery, takeLatest, start, stop, workers). However if you manually import some other logic and then access `otherLogic.actions.doSomething`, those action **will be bound to dispatch**. Placing them inside a `yield put(otherLogic.actions.doSomething())` will fire the action twice!
 
-To get around this, either skip `yield put()` with those actions... or use `logic.actionCreators.doSomething` instead.
+To get around this, either skip `yield put()` with those actions... or use `otherLogic.actionCreators.doSomething` instead.
+
+Doing something like `yield take(otherLogic.actions.doSomething().type)` will obviously also fire that action instead of waiting for it. Use `yield take(otherLogic.actions.doSomething)` instead.
 
 This means that the following situation can happen:
 
 ```js
 takeEvery: ({ actions }) => ({
   [actions.someAction]: function * () {
-    // this will be dispatched just once, as actions are not 
+    // this will be dispatched just once, as actions are not
     // bound when accessing from the `actions` object given to `takeEvery`
     // or from `this.actions`
-    yield put(actions.something()) 
+    yield put(actions.something())
 
-    // this will however be dispatched twice! 
-    yield put(otherLogic.actions.something()) 
+    // this will however be dispatched twice!
+    yield put(otherLogic.actions.something())
 
     // this will work as expected
-    yield put(otherLogic.actionCreators.something()) 
+    yield put(otherLogic.actionCreators.something())
   }
 })
 ```
 
+For now when you add the saga plugin to kea, the parameter `useLegacyUnboundActions` will be set to true.
+
+In case you use `{ useLegacyUnboundActions: false }` when initialising the plugin, **all** actions will be bound
+to `dispatch`, including the ones in `takeEvery: ({ actions }) => {}`, etc.
+
+The option `useLegacyUnboundActions` will default to `false` in the next breaking release (2.0). If you're
+starting a new app with `kea-saga` already now, feel free to set it to false yourself.
 
 ## 0.3.5 - 2018-11-28
 ### Fixed

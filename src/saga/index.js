@@ -1,20 +1,19 @@
 import createSagaMiddleware, { END } from 'redux-saga'
 
-import { addConnection, getContext } from 'kea'
+import { addConnection, getContext, getPluginContext } from 'kea'
 
 import { keaSaga, startSaga, cancelSaga } from './saga'
 import { createSaga } from './create-saga'
 import { select } from 'redux-saga/effects'
 
-export default {
+export default ({ useLegacyUnboundActions = true } = {}) => ({
   name: 'saga',
 
   defaults: () => ({
     get: undefined,
     fetch: undefined,
     workers: undefined,
-    saga: undefined,
-    connectedSagas: []
+    saga: undefined
   }),
 
   buildOrder: {
@@ -32,7 +31,7 @@ export default {
 
         for (let saga of sagas) {
           if (saga._isKea) {
-            addConnection(logic, saga)
+            addConnection(logic, saga(logic.props || {}))
           } else {
             connectedSagas.push(saga)
           }
@@ -40,7 +39,7 @@ export default {
       }
 
       if (connectedSagas.length > 0) {
-        logic.connectedSagas = (logic.connectedSagas || []).concat(connectedSagas)
+        logic.connectedSagas = connectedSagas
       }
     },
 
@@ -66,27 +65,29 @@ export default {
 
       // add .saga and .workers (if needed)
       if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
-        createSaga(logic, input)
+        createSaga(logic, input, useLegacyUnboundActions)
       }
     }
   },
 
   events: {
     beforeReduxStore (options) {
-      options._sagaMiddleware = createSagaMiddleware()
-      options.middleware.push(options._sagaMiddleware)
+      const sagaContext = getPluginContext('saga')
+      sagaContext.sagaMiddleware = createSagaMiddleware()
+      options.middleware.push(sagaContext.sagaMiddleware)
     },
 
     afterReduxStore (options, store) {
-      store._keaSagaTask = options._sagaMiddleware.run(keaSaga)
-      store._sagaMiddleware = options._sagaMiddleware
+      const { sagaMiddleware } = getPluginContext('saga')
+      store._keaSagaTask = sagaMiddleware.run(keaSaga)
+      store._sagaMiddleware = sagaMiddleware
     },
 
     afterMount (logic) {
       logic.saga && startSaga(logic.pathString, logic.saga)
     },
 
-    afterUnmount (logic) {
+    beforeUnmount (logic) {
       logic.saga && cancelSaga(logic.pathString)
     },
 
@@ -98,4 +99,4 @@ export default {
       }
     }
   }
-}
+})

@@ -78,13 +78,13 @@ test('connect when passing the entire logic to sagas: []', () => {
     }
   })
 
-  sagaLogic2.mount()
+  const unmount = sagaLogic2.mount()
 
   expect(sagaRan).toBe(true)
-  // it will not run with .saga, as we track the logic connection separately
-  expect(connectedSagaRan).toBe(false)
-  // the function * () {} connected saga should run though
+  expect(connectedSagaRan).toBe(true)
   expect(otherConnectedRan).toBe(true)
+
+  unmount()
 
   // try again and now mount the component
   otherConnectedRan = false

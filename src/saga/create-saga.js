@@ -1,16 +1,14 @@
 import { fork, call, cancel, cancelled, take, takeEvery, takeLatest } from 'redux-saga/effects'
 
-const LEGACY_MODE = true
-
-export function createSaga (logic, input) {
-  const sagaWrap = LEGACY_MODE ? (func) => {
+export function createSaga (logic, input, useLegacyUnboundActions = true) {
+  const sagaWrap = useLegacyUnboundActions ? (func) => {
     return (...args) => {
       const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
       return func.bind(legacyLogic)(...args)
     }
   } : func => func.bind(logic)
 
-  const sagaExec = LEGACY_MODE ? (func) => {
+  const sagaExec = useLegacyUnboundActions ? (func) => {
     const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
     return func(legacyLogic)
   } : func => func(logic)

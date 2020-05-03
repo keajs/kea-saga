@@ -121,7 +121,7 @@ test('sagas get connected actions', () => {
     }),
     start: function * () {
       expect(this.path).toEqual(['scenes', 'saga', 'connected'])
-      expect(Object.keys(this.actions)).toEqual(['randomAction'])
+      expect(Object.keys(this.actionCreators)).toEqual(['randomAction'])
       connectedSagaRan = true
     }
   })
@@ -143,7 +143,7 @@ test('sagas get connected actions', () => {
     }),
     start: function * () {
       expect(this.path).toEqual(['scenes', 'saga', 'base'])
-      expect(Object.keys(this.actions).sort()).toEqual(['myAction', 'randomAction'])
+      expect(Object.keys(this.actionCreators).sort()).toEqual(['myAction', 'randomAction'])
       sagaRan = true
     }
   })
@@ -185,7 +185,7 @@ test('can get/fetch data from connected kea logic stores', () => {
       }]
     }),
     start: function * () {
-      const { updateValue } = this.actions
+      const { updateValue } = this.actionCreators
       yield take(updateValue().toString)
 
       expect(yield this.get('connectedValue')).toBe(4)
@@ -215,7 +215,7 @@ test('can get/fetch data from connected kea logic stores', () => {
       myAction: true
     }),
     start: function * () {
-      const { updateValue, myAction } = this.actions
+      const { updateValue, myAction } = this.actionCreators
 
       expect(updateValue).toBeDefined()
       expect(myAction).toBeDefined()

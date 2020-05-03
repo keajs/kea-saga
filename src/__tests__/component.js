@@ -89,9 +89,9 @@ test('the actions have a key in them', () => {
       expect(this.key).toBe(12)
       expect(this.props.id).toBe(12)
       expect(this.path).toEqual(['scenes', 'sagaProps', 12])
-      expect(Object.keys(this.actions)).toEqual(['something', 'myAction'])
+      expect(Object.keys(this.actionCreators)).toEqual(['something', 'myAction'])
 
-      const { myAction } = this.actions
+      const { myAction } = this.actionCreators
       expect(myAction('something')).toEqual({ type: myAction.toString(), payload: { value: 'something' } })
       expect(myAction.toString()).toContain('sagaProps.12')
 
@@ -172,9 +172,9 @@ test('can get() connected values', () => {
 
     * start () {
       expect(this.path).toEqual(['scenes', 'sagaProps2'])
-      expect(Object.keys(this.actions)).toEqual(['myAction'])
+      expect(Object.keys(this.actionCreators)).toEqual(['myAction'])
 
-      const { myAction } = this.actions
+      const { myAction } = this.actionCreators
 
       expect(yield firstLogic.get('connectedValue')).toEqual(12)
       expect(yield this.get('connectedValue')).toEqual(12)

@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.0 - 2020-05-03
+
+### Changed
+
+- The option `{ useLegacyUnboundActions: false }` when installing the plugin now defaults to `false`.
+  See the discussion about this parameter in the changelog for version 1.0.0 below.
+  This option will be completely removed in kea-saga versions 3.0 and later.
+
+- You may now use action without `[actions.` and `]` in `takeLatest` and `takeEvery`. For example:
+
+```js
+kea({
+  actions: () => ({
+    doSomething: true,
+    otherAction: true
+  })
+})
+takeEvery: ({ actions }) => ({
+  doSomething: function * () {
+    // saga code here - no need for `[actions.]` around `doSomething`
+  },
+  [actions.otherAction]: function * () {
+    // saga code here the old way
+  }
+})
+```
+
 ## 1.0.1 - 2019-09-12
 
 ### Fixed

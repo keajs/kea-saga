@@ -41,12 +41,13 @@ export function createSaga (logic, input, useLegacyUnboundActions = true) {
           let keys = Object.keys(list)
           for (let i = 0; i < keys.length; i++) {
             let fn = list[keys[i]]
+            let actionKey = logic.actions[keys[i]] ? logic.actions[keys[i]].toString() : keys[i]
             if (Array.isArray(fn)) {
               for (let j = 0; j < fn.length; j++) {
-                yield ops[op](keys[i], sagaWrap(fn[j]))
+                yield ops[op](actionKey, sagaWrap(fn[j]))
               }
             } else {
-              yield ops[op](keys[i], sagaWrap(fn))
+              yield ops[op](actionKey, sagaWrap(fn))
             }
           }
         }

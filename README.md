@@ -10,4 +10,4 @@ Redux-Saga side effects for Kea
 
 # Documentation
 
-Read the docs: https://kea.js.org/effects/saga
+Read the docs: https://kea.js.org/docs/plugins/sagas

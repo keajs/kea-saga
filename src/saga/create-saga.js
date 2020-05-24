@@ -55,7 +55,7 @@ export function createSaga (logic, input, useLegacyUnboundActions = true) {
 
       if (logic.connectedSagas) {
         for (let saga of logic.connectedSagas) {
-          workers.push(yield fork(saga))
+          workers.push(yield fork(sagaWrap(saga)))
         }
       }
 

@@ -1,7 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index'
-
 import { PropTypes } from 'prop-types'
 import { put, take } from 'redux-saga/effects'
 import React from 'react'
@@ -12,10 +11,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext({
-    plugins: [ sagaPlugin ],
-    createStore: true
-  })
+  resetContext({ plugins: [sagaPlugin] })
 })
 
 test('can run sagas connected via { sagas: [] }', () => {
@@ -25,25 +21,25 @@ test('can run sagas connected via { sagas: [] }', () => {
 
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
-    start: function * () {
+    start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'connected'])
       connectedSagaRan = true
       ranLast = 'connected'
-    }
+    },
   })
 
   const sagaLogic = kea({
     path: () => ['scenes', 'saga', 'base'],
     sagas: [connectedSagaLogic.build().saga],
-    start: function * () {
+    start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'base'])
       sagaRan = true
       ranLast = 'base'
-    }
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   sagaLogic.mount()
 
@@ -63,22 +59,24 @@ test('connect when passing the entire logic to sagas: []', () => {
 
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
-    start: function * () {
+    start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'connected'])
       connectedSagaRan = true
-    }
+    },
   })
 
   const sagaLogic2 = kea({
     connect: {
-      sagas: [function * () {
-        otherConnectedRan = true
-      }]
+      sagas: [
+        function* () {
+          otherConnectedRan = true
+        },
+      ],
     },
     sagas: [connectedSagaLogic],
-    start: function * () {
+    start: function* () {
       sagaRan = true
-    }
+    },
   })
 
   const unmount = sagaLogic2.mount()
@@ -98,7 +96,7 @@ test('connect when passing the entire logic to sagas: []', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   // everything should have run
@@ -117,39 +115,33 @@ test('sagas get connected actions', () => {
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
     actions: () => ({
-      randomAction: true
+      randomAction: true,
     }),
-    start: function * () {
+    start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'connected'])
       expect(Object.keys(this.actionCreators)).toEqual(['randomAction'])
       connectedSagaRan = true
-    }
+    },
   })
 
   const sagaLogic = kea({
     connect: {
-      actions: [
-        connectedSagaLogic, [
-          'randomAction'
-        ]
-      ],
-      sagas: [
-        connectedSagaLogic
-      ]
+      actions: [connectedSagaLogic, ['randomAction']],
+      sagas: [connectedSagaLogic],
     },
     path: () => ['scenes', 'saga', 'base'],
     actions: () => ({
-      myAction: true
+      myAction: true,
     }),
-    start: function * () {
+    start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'base'])
       expect(Object.keys(this.actionCreators).sort()).toEqual(['myAction', 'randomAction'])
       sagaRan = true
-    }
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
@@ -157,7 +149,7 @@ test('sagas get connected actions', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaLogic.saga).toBeDefined()
@@ -177,44 +169,38 @@ test('can get/fetch data from connected kea logic stores', () => {
   const connectedSagaLogic = kea({
     path: () => ['scenes', 'saga', 'connected'],
     actions: () => ({
-      updateValue: (number) => ({ number })
+      updateValue: (number) => ({ number }),
     }),
     reducers: ({ actions }) => ({
-      connectedValue: [0, PropTypes.number, {
-        [actions.updateValue]: (_, payload) => payload.number
-      }]
+      connectedValue: [
+        0,
+        PropTypes.number,
+        {
+          [actions.updateValue]: (_, payload) => payload.number,
+        },
+      ],
     }),
-    start: function * () {
+    start: function* () {
       const { updateValue } = this.actionCreators
       yield take(updateValue().toString)
 
       expect(yield this.get('connectedValue')).toBe(4)
 
       connectedSagaRan = true
-    }
+    },
   })
 
   const sagaLogic = kea({
     connect: {
-      actions: [
-        connectedSagaLogic, [
-          'updateValue'
-        ]
-      ],
-      props: [
-        connectedSagaLogic, [
-          'connectedValue'
-        ]
-      ],
-      sagas: [
-        connectedSagaLogic
-      ]
+      actions: [connectedSagaLogic, ['updateValue']],
+      props: [connectedSagaLogic, ['connectedValue']],
+      sagas: [connectedSagaLogic],
     },
     path: () => ['scenes', 'saga', 'base'],
     actions: () => ({
-      myAction: true
+      myAction: true,
     }),
-    start: function * () {
+    start: function* () {
       const { updateValue, myAction } = this.actionCreators
 
       expect(updateValue).toBeDefined()
@@ -227,7 +213,7 @@ test('can get/fetch data from connected kea logic stores', () => {
       expect(yield this.get('connectedValue')).toBe(4)
 
       sagaRan = true
-    }
+    },
   })
 
   expect(sagaRan).toBe(false)
@@ -236,7 +222,7 @@ test('can get/fetch data from connected kea logic stores', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaRan).toBe(true)
@@ -253,34 +239,30 @@ test('will autorun sagas if not manually connected', () => {
 
   const connectedSagaLogic = kea({
     actions: () => ({
-      updateValue: true
+      updateValue: true,
     }),
-    start: function * () {
+    start: function* () {
       connectedSagaRan = true
-    }
+    },
   })
 
   const sagaLogic = kea({
     connect: {
-      actions: [
-        connectedSagaLogic, [
-          'updateValue'
-        ]
-      ]
+      actions: [connectedSagaLogic, ['updateValue']],
     },
     actions: () => ({
-      myAction: true
+      myAction: true,
     }),
-    start: function * () {
+    start: function* () {
       sagaRan = true
-    }
+    },
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaRan).toBe(true)
@@ -296,31 +278,27 @@ test('will autorun sagas if not manually connected, even if no internal saga', (
 
   const connectedSagaLogic = kea({
     actions: () => ({
-      updateValue: true
+      updateValue: true,
     }),
-    start: function * () {
+    start: function* () {
       connectedSagaRan = true
-    }
+    },
   })
 
   const sagaLogic = kea({
     connect: {
-      actions: [
-        connectedSagaLogic, [
-          'updateValue'
-        ]
-      ]
-    }
+      actions: [connectedSagaLogic, ['updateValue']],
+    },
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
   expect(connectedSagaRan).toBe(true)
 
   wrapper.unmount()
@@ -334,40 +312,32 @@ test('will not run sagas that are already running', () => {
 
   const connectedSagaLogic = kea({
     actions: () => ({
-      updateValue: true
+      updateValue: true,
     }),
-    start: function * () {
+    start: function* () {
       connectedSagaRan += 1
-    }
+    },
   })
 
   const sagaLogic = kea({
     connect: {
-      actions: [
-        connectedSagaLogic, [
-          'updateValue'
-        ]
-      ],
-      sagas: [
-        connectedSagaLogic
-      ]
+      actions: [connectedSagaLogic, ['updateValue']],
+      sagas: [connectedSagaLogic],
     },
-    sagas: [
-      connectedSagaLogic
-    ],
+    sagas: [connectedSagaLogic],
     actions: () => ({
-      myAction: true
+      myAction: true,
     }),
-    start: function * () {
+    start: function* () {
       sagaRan = true
-    }
+    },
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaRan).toBe(true)

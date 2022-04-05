@@ -4,14 +4,14 @@ import { eventChannel } from 'redux-saga'
 let emitter
 let forkedSagas = {}
 
-function createComponentChannel (socket) {
-  return eventChannel(emit => {
+function createComponentChannel(socket) {
+  return eventChannel((emit) => {
     emitter = emit
     return () => {}
   })
 }
 
-export function * keaSaga () {
+export function* keaSaga() {
   const channel = yield call(createComponentChannel)
 
   while (true) {
@@ -27,7 +27,7 @@ export function * keaSaga () {
   }
 }
 
-export function startSaga (pathString, saga) {
+export function startSaga(pathString, saga) {
   if (!emitter) {
     return false
   }
@@ -37,7 +37,7 @@ export function startSaga (pathString, saga) {
   return true
 }
 
-export function cancelSaga (pathString) {
+export function cancelSaga(pathString) {
   if (!emitter) {
     return false
   }

@@ -1,11 +1,10 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index'
-
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ], createStore: true })
+  resetContext({ plugins: [sagaPlugin], createStore: true })
 })
 
 test('takeEvery and takeLatest work with workers', () => {
@@ -18,37 +17,37 @@ test('takeEvery and takeLatest work with workers', () => {
   const sagaLogic = kea({
     actions: () => ({
       doEvery: (input) => ({ input }),
-      doLatest: (input) => ({ input })
+      doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}]
+      something: [false, PropTypes.bool, {}],
     }),
-    start: function * () {
+    start: function* () {
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
       sagaRan = true
     },
     takeEvery: ({ actions, workers }) => ({
-      [actions.doEvery]: workers.doEvery
+      [actions.doEvery]: workers.doEvery,
     }),
     takeLatest: ({ actions, workers }) => ({
-      [actions.doLatest]: workers.doLatest
+      [actions.doLatest]: workers.doLatest,
     }),
     workers: {
-      * doEvery () {
+      *doEvery() {
         expect(this.actions).toBeDefined()
         expect(this.get).toBeDefined()
         expect(this.fetch).toBeDefined()
         everyRan = true
       },
-      * doLatest () {
+      *doLatest() {
         latestRan = true
-      }
-    }
+      },
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
@@ -75,33 +74,33 @@ test('takeEvery and takeLatest work with inline functions', () => {
   const sagaLogic = kea({
     actions: () => ({
       doEvery: (input) => ({ input }),
-      doLatest: (input) => ({ input })
+      doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}]
+      something: [false, PropTypes.bool, {}],
     }),
-    start: function * () {
+    start: function* () {
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
       sagaRan = true
     },
     takeEvery: ({ actions, workers }) => ({
-      [actions.doEvery]: function * () {
+      [actions.doEvery]: function* () {
         expect(this.actions).toBeDefined()
         expect(this.get).toBeDefined()
         expect(this.fetch).toBeDefined()
         everyRan = true
-      }
+      },
     }),
     takeLatest: ({ actions, workers }) => ({
-      [actions.doLatest]: function * () {
+      [actions.doLatest]: function* () {
         latestRan = true
-      }
-    })
+      },
+    }),
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
@@ -128,33 +127,33 @@ test('takeEvery and takeLatest work with local actions', () => {
   const sagaLogic = kea({
     actions: () => ({
       doEvery: (input) => ({ input }),
-      doLatest: (input) => ({ input })
+      doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}]
+      something: [false, PropTypes.bool, {}],
     }),
-    start: function * () {
+    start: function* () {
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
       sagaRan = true
     },
     takeEvery: ({ actions, workers }) => ({
-      doEvery: function * () {
+      doEvery: function* () {
         expect(this.actions).toBeDefined()
         expect(this.get).toBeDefined()
         expect(this.fetch).toBeDefined()
         everyRan = true
-      }
+      },
     }),
     takeLatest: ({ actions, workers }) => ({
-      doLatest: function * () {
+      doLatest: function* () {
         latestRan = true
-      }
-    })
+      },
+    }),
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 

@@ -1,7 +1,6 @@
 /* global test, expect, beforeEach */
-import { kea, resetContext, getStore, activatePlugin } from 'kea'
-import sagaPlugin from '../index' // install the plugin
-
+import { getContext, kea, resetContext } from 'kea'
+import sagaPlugin from '../index'
 import './helper/jsdom'
 import React from 'react'
 import PropTypes from 'prop-types'
@@ -13,8 +12,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext()
-  activatePlugin(sagaPlugin)
+  resetContext({ plugins: [sagaPlugin] })
 })
 
 const SampleComponent1 = () => <div>bla bla bla</div>
@@ -23,15 +21,15 @@ const SampleComponent3 = () => <div>bla bla bla</div>
 const SampleComponent4 = () => <div>bla bla bla</div>
 
 test('the saga starts and stops with the component', () => {
-  const store = getStore()
+  const store = getContext().store
 
   let sagaStarted = false
 
   const logicWithSaga = kea({
-    * start () {
+    *start() {
       expect(this.props.id).toBe(12)
       sagaStarted = true
-    }
+    },
   })
 
   expect(sagaStarted).toBe(false)
@@ -41,7 +39,7 @@ test('the saga starts and stops with the component', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent id={12} />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaStarted).toBe(true)
@@ -50,7 +48,7 @@ test('the saga starts and stops with the component', () => {
 })
 
 test('the actions have a key in them', () => {
-  const store = getStore()
+  const store = getContext().store
 
   let sagaStarted = false
   let sagaStopped = false
@@ -58,21 +56,21 @@ test('the actions have a key in them', () => {
 
   const getActionsFromHere = kea({
     actions: () => ({
-      something: true
-    })
+      something: true,
+    }),
   })
 
   const logicWithSaga = kea({
     connect: {
-      actions: [getActionsFromHere, ['something']]
+      actions: [getActionsFromHere, ['something']],
     },
 
-    key: props => props.id,
+    key: (props) => props.id,
 
-    path: key => ['scenes', 'sagaProps', key],
+    path: (key) => ['scenes', 'sagaProps', key],
 
     actions: () => ({
-      myAction: value => ({ value })
+      myAction: (value) => ({ value }),
     }),
 
     reducers: ({ actions }) => ({
@@ -80,12 +78,12 @@ test('the actions have a key in them', () => {
         'nothing',
         PropTypes.string,
         {
-          [actions.myAction]: (state, payload) => payload.value
-        }
-      ]
+          [actions.myAction]: (state, payload) => payload.value,
+        },
+      ],
     }),
 
-    * start () {
+    *start() {
       expect(this.key).toBe(12)
       expect(this.props.id).toBe(12)
       expect(this.path).toEqual(['scenes', 'sagaProps', 12])
@@ -103,16 +101,16 @@ test('the actions have a key in them', () => {
       sagaStarted = true
     },
 
-    * stop () {
+    *stop() {
       sagaStopped = true
     },
 
     takeEvery: ({ actions, workers }) => ({
-      [actions.myAction]: workers.doStuff
+      [actions.myAction]: workers.doStuff,
     }),
 
     workers: {
-      * doStuff (action) {
+      *doStuff(action) {
         const { value } = action.payload
         expect(value).toBe('something')
 
@@ -120,8 +118,8 @@ test('the actions have a key in them', () => {
         expect(yield this.get('someData')).toBe('something')
 
         takeEveryRan = true
-      }
-    }
+      },
+    },
   })
 
   expect(sagaStarted).toBe(false)
@@ -131,7 +129,7 @@ test('the actions have a key in them', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent id={12} />
-    </Provider>
+    </Provider>,
   )
   expect(sagaStarted).toBe(true)
   expect(takeEveryRan).toBe(true)
@@ -142,35 +140,35 @@ test('the actions have a key in them', () => {
 })
 
 test('can get() connected values', () => {
-  const store = getStore()
+  const store = getContext().store
 
   let sagaStarted = false
   let takeEveryRan = false
 
   const firstLogic = kea({
     actions: () => ({
-      myAction: true
+      myAction: true,
     }),
     reducers: ({ actions }) => ({
       connectedValue: [
         12,
         PropTypes.number,
         {
-          [actions.myAction]: () => 42
-        }
-      ]
-    })
+          [actions.myAction]: () => 42,
+        },
+      ],
+    }),
   })
 
   const otherLogicWithSaga = kea({
     connect: {
       actions: [firstLogic, ['myAction']],
-      props: [firstLogic, ['connectedValue']]
+      props: [firstLogic, ['connectedValue']],
     },
 
-    path: key => ['scenes', 'sagaProps2'],
+    path: (key) => ['scenes', 'sagaProps2'],
 
-    * start () {
+    *start() {
       expect(this.path).toEqual(['scenes', 'sagaProps2'])
       expect(Object.keys(this.actionCreators)).toEqual(['myAction'])
 
@@ -187,15 +185,15 @@ test('can get() connected values', () => {
     },
 
     takeEvery: ({ actions, workers }) => ({
-      [actions.myAction]: workers.doStuff
+      [actions.myAction]: workers.doStuff,
     }),
 
     workers: {
-      * doStuff (action) {
+      *doStuff(action) {
         expect(yield this.get('connectedValue')).toBe(42)
         takeEveryRan = true
-      }
-    }
+      },
+    },
   })
 
   expect(sagaStarted).toBe(false)
@@ -205,7 +203,7 @@ test('can get() connected values', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaStarted).toBe(true)
@@ -215,26 +213,26 @@ test('can get() connected values', () => {
 })
 
 test('select gets props', () => {
-  const store = getStore()
+  const store = getContext().store
 
   let sagaStarted = false
 
   const logicWithSaga = kea({
-    path: key => ['scenes', 'sagaProps2'],
+    path: (key) => ['scenes', 'sagaProps2'],
 
     reducers: ({ actions }) => ({
-      ten: [10, PropTypes.number, {}]
+      ten: [10, PropTypes.number, {}],
     }),
 
     selectors: ({ selectors }) => ({
-      idPlusTen: [() => [selectors.ten, (_, props) => props.id], (ten, id) => ten + id, PropTypes.number]
+      idPlusTen: [() => [selectors.ten, (_, props) => props.id], (ten, id) => ten + id, PropTypes.number],
     }),
 
-    * start () {
+    *start() {
       expect(yield this.get('ten')).toBe(10)
       expect(yield this.get('idPlusTen')).toBe(22)
       sagaStarted = true
-    }
+    },
   })
 
   expect(sagaStarted).toBe(false)
@@ -244,7 +242,7 @@ test('select gets props', () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent id={12} />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaStarted).toBe(true)

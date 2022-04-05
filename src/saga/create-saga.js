@@ -1,17 +1,21 @@
 import { fork, call, cancel, cancelled, take, takeEvery, takeLatest } from 'redux-saga/effects'
 
-export function createSaga (logic, input, useLegacyUnboundActions = true) {
-  const sagaWrap = useLegacyUnboundActions ? (func) => {
-    return (...args) => {
-      const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
-      return func.bind(legacyLogic)(...args)
-    }
-  } : func => func.bind(logic)
+export function createSaga(logic, input, useLegacyUnboundActions = true) {
+  const sagaWrap = useLegacyUnboundActions
+    ? (func) => {
+        return (...args) => {
+          const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
+          return func.bind(legacyLogic)(...args)
+        }
+      }
+    : (func) => func.bind(logic)
 
-  const sagaExec = useLegacyUnboundActions ? (func) => {
-    const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
-    return func(legacyLogic)
-  } : func => func(logic)
+  const sagaExec = useLegacyUnboundActions
+    ? (func) => {
+        const legacyLogic = Object.assign({}, logic, { actionCreators: undefined, actions: logic.actionCreators })
+        return func(legacyLogic)
+      }
+    : (func) => func(logic)
 
   // bind workers and save to logic
   if (input.workers) {
@@ -27,7 +31,7 @@ export function createSaga (logic, input, useLegacyUnboundActions = true) {
   }
 
   // generate the saga
-  const saga = function * () {
+  const saga = function* () {
     let workers = []
 
     try {
@@ -85,7 +89,7 @@ export function createSaga (logic, input, useLegacyUnboundActions = true) {
 
   if (logic.saga) {
     const oldSaga = logic.saga
-    logic.saga = function * () {
+    logic.saga = function* () {
       yield fork(oldSaga)
       yield fork(saga)
     }

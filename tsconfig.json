@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES5",
+    "module": "CommonJS",
+    "strict": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+    "baseUrl": "./src",
+    "incremental": true,
+    "types": ["jest", "node"],
+    "lib": ["dom", "ES2020"],
+    "resolveJsonModule": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx"
+  },
+  "exclude": ["node_modules", "lib", "demo"]
+}

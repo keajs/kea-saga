@@ -1,15 +1,12 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import sagaPlugin from '../index'
-
 import { put } from 'redux-saga/effects'
-
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
   resetContext({
-    plugins: [ sagaPlugin({ useLegacyUnboundActions: false }) ],
-    createStore: true
+    plugins: [sagaPlugin({ useLegacyUnboundActions: false })],
   })
 })
 
@@ -17,15 +14,15 @@ test('can have a kea with only a saga', () => {
   let sagaRan = false
 
   const sagaLogic = kea({
-    start: function * () {
+    start: function* () {
       expect(this.get).not.toBeDefined()
       expect(this.fetch).not.toBeDefined()
       sagaRan = true
-    }
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
@@ -41,27 +38,27 @@ test('can access defined actions', () => {
 
   const sagaLogic = kea({
     actions: () => ({
-      doSomething: (input) => ({ input })
+      doSomething: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}]
+      something: [false, PropTypes.bool, {}],
     }),
-    start: function * () {
+    start: function* () {
       expect(this.path).toBeDefined()
       expect(this.actions).toBeDefined()
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()
-      expect(Object.keys(this.actions)).toEqual([ 'doSomething' ])
+      expect(Object.keys(this.actions)).toEqual(['doSomething'])
 
       const { doSomething } = this.actionCreators
       expect(doSomething('input-text')).toEqual({ type: doSomething.toString(), payload: { input: 'input-text' } })
 
       sagaRan = true
-    }
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
@@ -77,14 +74,18 @@ test('can access values on reducer', () => {
 
   const sagaLogic = kea({
     actions: () => ({
-      setString: (string) => ({ string })
+      setString: (string) => ({ string }),
     }),
     reducers: ({ actions }) => ({
-      ourString: ['nothing', PropTypes.string, {
-        [actions.setString]: (state, payload) => payload.string
-      }]
+      ourString: [
+        'nothing',
+        PropTypes.string,
+        {
+          [actions.setString]: (state, payload) => payload.string,
+        },
+      ],
     }),
-    start: function * () {
+    start: function* () {
       const { setString } = this.actions
 
       expect(this.get).toBeDefined()
@@ -98,11 +99,11 @@ test('can access values on reducer', () => {
       expect(yield this.fetch('ourString')).toEqual({ ourString: 'something' })
 
       sagaRan = true
-    }
+    },
   })
 
   expect(sagaLogic._isKea).toBe(true)
-  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'saga'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 

@@ -1,34 +1,35 @@
 /* global test, expect */
-import { kea, resetContext, getStore, getContext } from 'kea'
-import sagaPlugin from '../index' // install the plugin
-
+import { kea, resetContext, getContext } from 'kea'
+import sagaPlugin from '../index'
 import './helper/jsdom'
 import { delay } from 'redux-saga/effects'
 
-const promiseDelay = ms => new Promise((resolve) => setTimeout(resolve, ms))
+const promiseDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 test('sagas stop when context resets', () => {
   let counter = 0
 
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   const logic = kea({
     actions: () => ({
-      increment: true
+      increment: true,
     }),
 
     reducers: ({ actions }) => ({
-      reducerCounter: [0, {
-        [actions.increment]: (state) => state + 1
-      }]
+      reducerCounter: [
+        0,
+        {
+          [actions.increment]: (state) => state + 1,
+        },
+      ],
     }),
 
     takeEvery: ({ actions }) => ({
-      [actions.increment]: function * () {
+      [actions.increment]: function* () {
         counter += 1
-      }
-    })
+      },
+    }),
   })
 
   expect(counter).toBe(0)
@@ -45,8 +46,7 @@ test('sagas stop when context resets', () => {
 
   // leave logic mounted on purpose!
 
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   const { store: store2 } = getContext()
 
@@ -66,26 +66,28 @@ test('sagas stop when context resets', () => {
 test('forks stop when context resets', async () => {
   let counter = 0
 
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   const logic = kea({
     actions: () => ({
-      increment: true
+      increment: true,
     }),
 
     reducers: ({ actions }) => ({
-      reducerCounter: [0, {
-        [actions.increment]: (state) => state + 1
-      }]
+      reducerCounter: [
+        0,
+        {
+          [actions.increment]: (state) => state + 1,
+        },
+      ],
     }),
 
     takeEvery: ({ actions }) => ({
-      [actions.increment]: function * () {
+      [actions.increment]: function* () {
         yield delay(1000)
         counter += 1
-      }
-    })
+      },
+    }),
   })
 
   expect(counter).toBe(0)
@@ -107,8 +109,7 @@ test('forks stop when context resets', async () => {
   store.dispatch(logic.actionCreators.increment())
 
   // and reset the context
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   const { store: store2 } = getContext()
 

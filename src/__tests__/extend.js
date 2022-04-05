@@ -1,42 +1,40 @@
 /* global test, expect */
-import { kea, resetContext, getStore, getContext } from 'kea'
-import sagaPlugin from '../index' // install the plugin
-
+import { kea, resetContext, getContext } from 'kea'
+import sagaPlugin from '../index'
 import './helper/jsdom'
 
 test('extending sagas works', () => {
   let actionLog = []
 
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   // first verify that it just works like it is
 
   const logic = kea({
     actions: () => ({
       increment: true,
-      decrement: true
+      decrement: true,
     }),
 
-    start: function * () {
+    start: function* () {
       actionLog.push('start')
     },
 
-    stop: function * () {
+    stop: function* () {
       actionLog.push('stop')
     },
 
     takeEvery: ({ actions }) => ({
-      [actions.increment]: function * () {
+      [actions.increment]: function* () {
         actionLog.push('takeEvery-increment')
-      }
+      },
     }),
 
     takeLatest: ({ actions }) => ({
-      [actions.decrement]: function * () {
+      [actions.decrement]: function* () {
         actionLog.push('takeLatest-decrement')
-      }
-    })
+      },
+    }),
   })
   const unmount1 = logic.mount()
 
@@ -51,31 +49,30 @@ test('extending sagas works', () => {
 
   // reset everything
   actionLog = []
-  resetContext({ plugins: [ sagaPlugin ] })
-  getStore()
+  resetContext({ plugins: [sagaPlugin] })
 
   // extend with more operations
 
   logic.extend({
-    start: function * () {
+    start: function* () {
       actionLog.push('extend-start')
     },
 
-    stop: function * () {
+    stop: function* () {
       actionLog.push('extend-stop')
     },
 
     takeEvery: ({ actions }) => ({
-      [actions.increment]: function * () {
+      [actions.increment]: function* () {
         actionLog.push('extend-takeEvery-increment')
-      }
+      },
     }),
 
     takeLatest: ({ actions }) => ({
-      [actions.decrement]: function * () {
+      [actions.decrement]: function* () {
         actionLog.push('extend-takeLatest-decrement')
-      }
-    })
+      },
+    }),
   })
 
   const unmount2 = logic.mount()
@@ -86,12 +83,24 @@ test('extending sagas works', () => {
   getContext().store.dispatch(logic.actionCreators.decrement())
 
   expect(actionLog).toEqual([
-    'start', 'extend-start', 'takeEvery-increment', 'extend-takeEvery-increment', 'takeLatest-decrement', 'extend-takeLatest-decrement'
+    'start',
+    'extend-start',
+    'takeEvery-increment',
+    'extend-takeEvery-increment',
+    'takeLatest-decrement',
+    'extend-takeLatest-decrement',
   ])
 
   unmount2()
 
   expect(actionLog).toEqual([
-    'start', 'extend-start', 'takeEvery-increment', 'extend-takeEvery-increment', 'takeLatest-decrement', 'extend-takeLatest-decrement', 'stop', 'extend-stop'
+    'start',
+    'extend-start',
+    'takeEvery-increment',
+    'extend-takeEvery-increment',
+    'takeLatest-decrement',
+    'extend-takeLatest-decrement',
+    'stop',
+    'extend-stop',
   ])
 })

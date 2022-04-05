@@ -1,29 +1,27 @@
 import createSagaMiddleware, { END } from 'redux-saga'
-
 import { addConnection, getContext, getPluginContext } from 'kea'
-
 import { keaSaga, startSaga, cancelSaga } from './saga'
 import { createSaga } from './create-saga'
 import { select } from 'redux-saga/effects'
 
-export default ({ useLegacyUnboundActions = false } = {}) => ({
+export const sagePlugin = ({ useLegacyUnboundActions = false } = {}) => ({
   name: 'saga',
 
   defaults: () => ({
     get: undefined,
     fetch: undefined,
     workers: undefined,
-    saga: undefined
+    saga: undefined,
   }),
 
   buildOrder: {
-    connectSagas: { after: 'connect' }
+    connectSagas: { after: 'connect' },
   },
 
   buildSteps: {
     // 1) Add to .connectedSagas any generator functions in input.sagas || input.connect.sagas
     // 2) Connect logic stores from input.sagas || input.connect.sagas into .connections
-    connectSagas (logic, input) {
+    connectSagas(logic, input) {
       let connectedSagas = []
 
       if (input.sagas || (input.connect && input.connect.sagas)) {
@@ -43,14 +41,14 @@ export default ({ useLegacyUnboundActions = false } = {}) => ({
       }
     },
 
-    saga (logic, input) {
+    saga(logic, input) {
       // add .fetch() & .get() to all logic stores if there are any selectors
       if (logic.selectors && Object.keys(logic.selectors).length > 0) {
-        logic.get = function * (key) {
+        logic.get = function* (key) {
           return yield select(key ? logic.selectors[key] : logic.selector, logic.props)
         }
 
-        logic.fetch = function * () {
+        logic.fetch = function* () {
           let results = {}
 
           const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
@@ -67,36 +65,36 @@ export default ({ useLegacyUnboundActions = false } = {}) => ({
       if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
         createSaga(logic, input, useLegacyUnboundActions)
       }
-    }
+    },
   },
 
   events: {
-    beforeReduxStore (options) {
+    beforeReduxStore(options) {
       const sagaContext = getPluginContext('saga')
       sagaContext.sagaMiddleware = createSagaMiddleware()
       options.middleware.push(sagaContext.sagaMiddleware)
     },
 
-    afterReduxStore (options, store) {
+    afterReduxStore(options, store) {
       const { sagaMiddleware } = getPluginContext('saga')
       store._keaSagaTask = sagaMiddleware.run(keaSaga)
       store._sagaMiddleware = sagaMiddleware
     },
 
-    afterMount (logic) {
+    afterMount(logic) {
       logic.saga && startSaga(logic.pathString, logic.saga)
     },
 
-    beforeUnmount (logic) {
+    beforeUnmount(logic) {
       logic.saga && cancelSaga(logic.pathString)
     },
 
-    beforeCloseContext (context) {
+    beforeCloseContext(context) {
       const { store } = context || getContext()
       store && store.dispatch(END)
       if (store && store._keaSagaTask && store._keaSagaTask.isRunning()) {
         store._keaSagaTask.cancel()
       }
-    }
-  }
+    },
+  },
 })

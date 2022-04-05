@@ -1,7 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
-import sagaPlugin from '../index' // install the plugin
-
+import sagaPlugin from '../index'
 import './helper/jsdom'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
@@ -12,7 +11,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext({ plugins: [ sagaPlugin ], createStore: true })
+  resetContext({ plugins: [sagaPlugin], createStore: true })
 })
 
 test('the saga starts and stops with the component', async () => {
@@ -22,12 +21,12 @@ test('the saga starts and stops with the component', async () => {
   let sagaCancelled = false
 
   const logicWithSaga = kea({
-    * start () {
+    *start() {
       sagaStarted = true
     },
-    * stop () {
+    *stop() {
       sagaCancelled = true
-    }
+    },
   })
 
   const withSaga = kea({ sagas: [logicWithSaga] })
@@ -40,7 +39,7 @@ test('the saga starts and stops with the component', async () => {
   const wrapper = mount(
     <Provider store={store}>
       <ConnectedComponent id={12} />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaStarted).toBe(true)
@@ -60,12 +59,12 @@ test('the saga is cancelled only when all connected components are unmounted', (
   let componentUnmounted = false
 
   const logicWithSaga = kea({
-    * start () {
+    *start() {
       sagaStarted += 1
     },
-    * stop () {
+    *stop() {
       sagaCancelled += 1
-    }
+    },
   })
 
   expect(sagaStarted).toBe(0)
@@ -73,10 +72,10 @@ test('the saga is cancelled only when all connected components are unmounted', (
   const SampleComponent1 = () => <div>comp1</div>
   const SampleComponent2 = () => <div>comp2</div>
   class SampleComponent3 extends Component {
-    componentWillUnmount () {
+    componentWillUnmount() {
       componentUnmounted = true
     }
-    render () {
+    render() {
       return <div>comp3</div>
     }
   }
@@ -88,21 +87,21 @@ test('the saga is cancelled only when all connected components are unmounted', (
 
   const disabler = kea({
     actions: () => ({
-      disable: true
+      disable: true,
     }),
     reducers: ({ actions }) => ({
       disabled: [
         false,
         PropTypes.bool,
         {
-          [actions.disable]: () => true
-        }
-      ]
-    })
+          [actions.disable]: () => true,
+        },
+      ],
+    }),
   })
 
   class ComponentToDisable extends Component {
-    render () {
+    render() {
       const { disabled } = this.props
       return (
         <div>
@@ -118,7 +117,7 @@ test('the saga is cancelled only when all connected components are unmounted', (
   const wrapper = mount(
     <Provider store={store}>
       <ComponentWithDisabler />
-    </Provider>
+    </Provider>,
   )
 
   expect(sagaStarted).toBe(1)

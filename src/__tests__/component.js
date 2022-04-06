@@ -3,13 +3,8 @@ import { getContext, kea, resetContext } from 'kea'
 import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React from 'react'
-import PropTypes from 'prop-types'
-import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
-import Adapter from 'enzyme-adapter-react-16'
-
-configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -76,7 +71,6 @@ test('the actions have a key in them', () => {
     reducers: ({ actions }) => ({
       someData: [
         'nothing',
-        PropTypes.string,
         {
           [actions.myAction]: (state, payload) => payload.value,
         },
@@ -152,7 +146,6 @@ test('can get() connected values', () => {
     reducers: ({ actions }) => ({
       connectedValue: [
         12,
-        PropTypes.number,
         {
           [actions.myAction]: () => 42,
         },
@@ -221,11 +214,11 @@ test('select gets props', () => {
     path: (key) => ['scenes', 'sagaProps2'],
 
     reducers: ({ actions }) => ({
-      ten: [10, PropTypes.number, {}],
+      ten: [10, {}],
     }),
 
     selectors: ({ selectors }) => ({
-      idPlusTen: [() => [selectors.ten, (_, props) => props.id], (ten, id) => ten + id, PropTypes.number],
+      idPlusTen: [() => [selectors.ten, (_, props) => props.id], (ten, id) => ten + id],
     }),
 
     *start() {

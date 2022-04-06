@@ -3,12 +3,7 @@ import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
-import Adapter from 'enzyme-adapter-react-16'
-
-configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -92,7 +87,6 @@ test('the saga is cancelled only when all connected components are unmounted', (
     reducers: ({ actions }) => ({
       disabled: [
         false,
-        PropTypes.bool,
         {
           [actions.disable]: () => true,
         },

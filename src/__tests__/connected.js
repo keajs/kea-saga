@@ -1,14 +1,9 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
-import { PropTypes } from 'prop-types'
 import { put, take } from 'redux-saga/effects'
 import React from 'react'
-import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
-import Adapter from 'enzyme-adapter-react-16'
-
-configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -174,7 +169,6 @@ test('can get/fetch data from connected kea logic stores', () => {
     reducers: ({ actions }) => ({
       connectedValue: [
         0,
-        PropTypes.number,
         {
           [actions.updateValue]: (_, payload) => payload.number,
         },

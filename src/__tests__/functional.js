@@ -3,13 +3,8 @@ import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React from 'react'
-import PropTypes from 'prop-types'
-import { mount, configure } from 'enzyme'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
-import Adapter from 'enzyme-adapter-react-16'
-
-configure({ adapter: new Adapter() })
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -73,7 +68,6 @@ test('the actions get a key', () => {
     reducers: ({ actions }) => ({
       someData: [
         'nothing',
-        PropTypes.string,
         {
           [actions.myAction]: (state, payload) => payload.value,
         },

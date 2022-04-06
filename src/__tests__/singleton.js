@@ -2,7 +2,6 @@
 import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
 import { put } from 'redux-saga/effects'
-import PropTypes from 'prop-types'
 
 beforeEach(() => {
   resetContext({
@@ -41,7 +40,7 @@ test('can access defined actions', () => {
       doSomething: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}],
+      something: [false, {}],
     }),
     start: function* () {
       expect(this.path).toBeDefined()
@@ -79,7 +78,6 @@ test('can access values on reducer', () => {
     reducers: ({ actions }) => ({
       ourString: [
         'nothing',
-        PropTypes.string,
         {
           [actions.setString]: (state, payload) => payload.string,
         },

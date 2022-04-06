@@ -1,7 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
-import PropTypes from 'prop-types'
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -20,7 +19,7 @@ test('takeEvery and takeLatest work with workers', () => {
       doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}],
+      something: [false, {}],
     }),
     start: function* () {
       expect(this.get).toBeDefined()
@@ -53,8 +52,6 @@ test('takeEvery and takeLatest work with workers', () => {
 
   sagaLogic.mount()
   expect(Object.keys(sagaLogic.workers)).toEqual(['doEvery', 'doLatest'])
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).toBeDefined()
 
   store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
   store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
@@ -77,7 +74,7 @@ test('takeEvery and takeLatest work with inline functions', () => {
       doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}],
+      something: [false, {}],
     }),
     start: function* () {
       expect(this.get).toBeDefined()
@@ -98,16 +95,12 @@ test('takeEvery and takeLatest work with inline functions', () => {
       },
     }),
   })
-
   expect(sagaLogic._isKea).toBe(true)
   expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   expect(sagaRan).toBe(false)
 
   sagaLogic.mount()
-
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
 
   store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
   store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
@@ -130,7 +123,7 @@ test('takeEvery and takeLatest work with local actions', () => {
       doLatest: (input) => ({ input }),
     }),
     reducers: ({ actions }) => ({
-      something: [false, PropTypes.bool, {}],
+      something: [false, {}],
     }),
     start: function* () {
       expect(this.get).toBeDefined()

@@ -4,7 +4,7 @@ import { keaSaga, startSaga, cancelSaga } from './saga'
 import { createSaga } from './create-saga'
 import { select } from 'redux-saga/effects'
 
-export const sagePlugin = ({ useLegacyUnboundActions = false } = {}) => ({
+export const sagaPlugin = ({ useLegacyUnboundActions = false } = {}) => ({
   name: 'saga',
 
   defaults: () => ({

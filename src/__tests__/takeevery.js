@@ -1,10 +1,10 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
-import sagaPlugin from '../index'
+import { sagaPlugin } from '../index'
 import PropTypes from 'prop-types'
 
 beforeEach(() => {
-  resetContext({ plugins: [sagaPlugin], createStore: true })
+  resetContext({ plugins: [sagaPlugin] })
 })
 
 test('takeEvery and takeLatest work with workers', () => {

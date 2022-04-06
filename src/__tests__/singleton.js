@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
-import sagaPlugin from '../index'
+import { sagaPlugin } from '../index'
 import { put } from 'redux-saga/effects'
 import PropTypes from 'prop-types'
 

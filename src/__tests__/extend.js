@@ -1,6 +1,6 @@
 /* global test, expect */
 import { kea, resetContext, getContext } from 'kea'
-import sagaPlugin from '../index'
+import { sagaPlugin } from '../index'
 import './helper/jsdom'
 
 test('extending sagas works', () => {

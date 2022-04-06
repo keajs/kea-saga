@@ -11,11 +11,11 @@ module.exports = {
     '@babel/preset-typescript',
   ],
   plugins: [
-    'transform-babel-env-inline',
     '@babel/plugin-syntax-dynamic-import',
     '@babel/plugin-syntax-import-meta',
     '@babel/plugin-proposal-class-properties',
     '@babel/plugin-proposal-json-strings',
+    ['@babel/plugin-proposal-private-property-in-object', { loose: false }],
     [
       '@babel/plugin-proposal-decorators',
       {
@@ -55,7 +55,6 @@ module.exports = {
         '@babel/preset-react',
       ],
       plugins: [
-        'transform-babel-env-inline',
         '@babel/plugin-syntax-dynamic-import',
         '@babel/plugin-syntax-import-meta',
         '@babel/plugin-proposal-class-properties',

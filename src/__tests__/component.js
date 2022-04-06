@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
 import { getContext, kea, resetContext } from 'kea'
-import sagaPlugin from '../index'
+import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React from 'react'
 import PropTypes from 'prop-types'

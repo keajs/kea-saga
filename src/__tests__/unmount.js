@@ -1,6 +1,6 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
-import sagaPlugin from '../index'
+import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
@@ -11,7 +11,7 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 
 beforeEach(() => {
-  resetContext({ plugins: [sagaPlugin], createStore: true })
+  resetContext({ plugins: [sagaPlugin] })
 })
 
 test('the saga starts and stops with the component', async () => {

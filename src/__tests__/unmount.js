@@ -4,6 +4,7 @@ import { sagaPlugin } from '../index'
 import './helper/jsdom'
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
+import { render } from '@testing-library/react'
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
@@ -31,7 +32,7 @@ test('the saga starts and stops with the component', async () => {
   const SampleComponent = () => <div>bla bla</div>
   const ConnectedComponent = withSaga(SampleComponent)
 
-  const wrapper = mount(
+  const { rerender} = render(
     <Provider store={store}>
       <ConnectedComponent id={12} />
     </Provider>,
@@ -40,7 +41,11 @@ test('the saga starts and stops with the component', async () => {
   expect(sagaStarted).toBe(true)
   expect(sagaCancelled).toBe(false)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 
   expect(sagaStarted).toBe(true)
   expect(sagaCancelled).toBe(true)
@@ -108,7 +113,7 @@ test('the saga is cancelled only when all connected components are unmounted', (
   }
   const ComponentWithDisabler = disabler(ComponentToDisable)
 
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ComponentWithDisabler />
     </Provider>,
@@ -119,9 +124,7 @@ test('the saga is cancelled only when all connected components are unmounted', (
   expect(componentUnmounted).toBe(false)
 
   // run the disabler, removing component #3
-  const mountedDisabler = wrapper.find('ComponentToDisable').instance()
-  expect(Object.keys(mountedDisabler.actions)).toEqual(['disable'])
-  mountedDisabler.actions.disable()
+  disabler.actions.disable()
 
   // exppect nothing to be cancelled, but the component to be unmounted
   expect(sagaStarted).toBe(1)
@@ -129,7 +132,11 @@ test('the saga is cancelled only when all connected components are unmounted', (
   expect(componentUnmounted).toBe(true)
 
   // close up shop
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 
   expect(sagaStarted).toBe(1)
   expect(sagaCancelled).toBe(1)

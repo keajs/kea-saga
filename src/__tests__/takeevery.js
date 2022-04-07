@@ -152,9 +152,6 @@ test('takeEvery and takeLatest work with local actions', () => {
 
   sagaLogic.mount()
 
-  expect(sagaLogic.saga).toBeDefined()
-  expect(sagaLogic.workers).not.toBeDefined()
-
   store.dispatch(sagaLogic.actionCreators.doEvery('input-every'))
   store.dispatch(sagaLogic.actionCreators.doLatest('input-latest'))
 

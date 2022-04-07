@@ -5,10 +5,7 @@ import { LogicWithSaga, SagaContext, SagaPluginOptions } from './types'
 import { cancelled, saga, takeEvery, takeLatest, workers } from './builders'
 import { addGetAndFetch } from './utils'
 
-export const sagaPlugin = ({
-  useLegacyUnboundActions = false,
-  injectGetFetchIntoEveryLogic = false,
-}: SagaPluginOptions = {}): KeaPlugin => ({
+export const sagaPlugin = ({ injectGetFetchIntoEveryLogic = false }: SagaPluginOptions = {}): KeaPlugin => ({
   name: 'saga',
 
   defaults: () => ({
@@ -22,7 +19,6 @@ export const sagaPlugin = ({
     beforeReduxStore(options) {
       const sagaContext = getPluginContext('saga') as SagaContext
       sagaContext.sagaMiddleware = createSagaMiddleware()
-      sagaContext.useLegacyUnboundActions = useLegacyUnboundActions
       options.middleware.push(sagaContext.sagaMiddleware)
     },
 

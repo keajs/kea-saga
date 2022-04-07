@@ -2,7 +2,6 @@ import { Saga, SagaMiddleware, Task } from 'redux-saga'
 import { Logic } from 'kea'
 
 export interface SagaPluginOptions {
-  useLegacyUnboundActions?: boolean
   injectGetFetchIntoEveryLogic?: boolean
 }
 

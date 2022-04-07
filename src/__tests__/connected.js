@@ -88,7 +88,7 @@ test('connect when passing the entire logic to sagas: []', () => {
   connectedSagaRan = false
 
   const ConnectedComponent = sagaLogic2(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -98,7 +98,12 @@ test('connect when passing the entire logic to sagas: []', () => {
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
   expect(otherConnectedRan).toBe(true)
-  wrapper.unmount()
+
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('sagas get connected actions', () => {
@@ -141,7 +146,7 @@ test('sagas get connected actions', () => {
   expect(sagaRan).toBe(false)
 
   const ConnectedComponent = sagaLogic(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -152,7 +157,11 @@ test('sagas get connected actions', () => {
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('can get/fetch data from connected kea logic stores', () => {
@@ -213,7 +222,7 @@ test('can get/fetch data from connected kea logic stores', () => {
   expect(sagaRan).toBe(false)
 
   const ConnectedComponent = sagaLogic(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -222,7 +231,11 @@ test('can get/fetch data from connected kea logic stores', () => {
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('will autorun sagas if not manually connected', () => {
@@ -253,7 +266,7 @@ test('will autorun sagas if not manually connected', () => {
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -262,7 +275,11 @@ test('will autorun sagas if not manually connected', () => {
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('will autorun sagas if not manually connected, even if no internal saga', () => {
@@ -286,7 +303,7 @@ test('will autorun sagas if not manually connected, even if no internal saga', (
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -295,7 +312,11 @@ test('will autorun sagas if not manually connected, even if no internal saga', (
   expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
   expect(connectedSagaRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('will not run sagas that are already running', () => {
@@ -328,7 +349,7 @@ test('will not run sagas that are already running', () => {
   })
 
   const ConnectedComponent = sagaLogic(() => <div />)
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -337,5 +358,9 @@ test('will not run sagas that are already running', () => {
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(1)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })

@@ -3,6 +3,7 @@ import { Logic } from 'kea'
 
 export interface SagaPluginOptions {
   useLegacyUnboundActions?: boolean
+  injectGetFetchIntoEveryLogic?: boolean
 }
 
 export interface SagaContext {

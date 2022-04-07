@@ -5,9 +5,10 @@ import './helper/jsdom'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
+import { render } from '@testing-library/react'
 
 beforeEach(() => {
-  resetContext({ plugins: [sagaPlugin] })
+  resetContext({ plugins: [sagaPlugin({ injectGetFetchIntoEveryLogic: true })] })
 })
 
 const SampleComponent1 = () => <div>bla bla bla</div>
@@ -31,7 +32,7 @@ test('the saga starts and stops with the component', () => {
 
   const ConnectedComponent = logicWithSaga(SampleComponent1)
 
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent id={12} />
     </Provider>,
@@ -39,7 +40,11 @@ test('the saga starts and stops with the component', () => {
 
   expect(sagaStarted).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('the actions have a key in them', () => {
@@ -120,7 +125,7 @@ test('the actions have a key in them', () => {
 
   const ConnectedComponent = logicWithSaga(SampleComponent2)
 
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent id={12} />
     </Provider>,
@@ -128,7 +133,11 @@ test('the actions have a key in them', () => {
   expect(sagaStarted).toBe(true)
   expect(takeEveryRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 
   expect(sagaStopped).toBe(true)
 })
@@ -167,10 +176,13 @@ test('can get() connected values', () => {
 
       const { myAction } = this.actionCreators
 
+      // injectGetFetchIntoEveryLogic
+      expect(yield firstLogic.values.connectedValue).toEqual(12)
       expect(yield firstLogic.get('connectedValue')).toEqual(12)
       expect(yield this.get('connectedValue')).toEqual(12)
       yield put(myAction())
 
+      expect(yield firstLogic.values.connectedValue).toEqual(42)
       expect(yield firstLogic.get('connectedValue')).toEqual(42)
       expect(yield this.get('connectedValue')).toEqual(42)
 
@@ -193,7 +205,7 @@ test('can get() connected values', () => {
 
   const ConnectedComponent = otherLogicWithSaga(SampleComponent3)
 
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent />
     </Provider>,
@@ -202,7 +214,11 @@ test('can get() connected values', () => {
   expect(sagaStarted).toBe(true)
   expect(takeEveryRan).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })
 
 test('select gets props', () => {
@@ -232,7 +248,7 @@ test('select gets props', () => {
 
   const ConnectedComponent = logicWithSaga(SampleComponent4)
 
-  const wrapper = mount(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent id={12} />
     </Provider>,
@@ -240,5 +256,9 @@ test('select gets props', () => {
 
   expect(sagaStarted).toBe(true)
 
-  wrapper.unmount()
+  rerender(
+    <Provider store={store}>
+      <div />
+    </Provider>,
+  )
 })

@@ -1,10 +1,14 @@
 import createSagaMiddleware, { END, Saga } from 'redux-saga'
-import { connect, getContext, getPluginContext, KeaPlugin } from 'kea'
+import { connect, getContext, getPluginContext, KeaPlugin, Logic } from 'kea'
 import { keaSaga } from './channel'
-import { SagaContext, SagaPluginOptions } from './types'
+import { LogicWithSaga, SagaContext, SagaPluginOptions } from './types'
 import { cancelled, saga, takeEvery, takeLatest, workers } from './builders'
+import { addGetAndFetch } from './utils'
 
-export const sagaPlugin = ({ useLegacyUnboundActions = false }: SagaPluginOptions = {}): KeaPlugin => ({
+export const sagaPlugin = ({
+  useLegacyUnboundActions = false,
+  injectGetFetchIntoEveryLogic = false,
+}: SagaPluginOptions = {}): KeaPlugin => ({
   name: 'saga',
 
   defaults: () => ({
@@ -36,6 +40,16 @@ export const sagaPlugin = ({ useLegacyUnboundActions = false }: SagaPluginOption
         sagaContext.sagaTask.cancel()
       }
     },
+
+    ...(injectGetFetchIntoEveryLogic
+      ? {
+          afterLogic(logic) {
+            if (injectGetFetchIntoEveryLogic) {
+              addGetAndFetch(logic as Logic as LogicWithSaga)
+            }
+          },
+        }
+      : {}),
 
     legacyBuild(logic, input) {
       'workers' in input && input.workers && workers(input.workers)(logic)

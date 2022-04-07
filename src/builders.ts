@@ -9,6 +9,7 @@ import {
 import { LogicWithSaga } from './types'
 import { cancelSaga, startSaga } from './channel'
 import { Saga } from 'redux-saga'
+import { addGetAndFetch } from './utils'
 
 let sagaIndex = 0
 
@@ -97,20 +98,5 @@ export function cancelled<L extends Logic = Logic>(input: Saga): LogicBuilder<L>
         }
       }
     })(_logic)
-  }
-}
-
-function addGetAndFetch(logic: LogicWithSaga) {
-  if (!('get' in logic) || !logic.get) {
-    logic.get = (key?: string) => (key ? logic.values[key] : logic.selector?.(getContext().store.getState()))
-  }
-  if (!('fetch' in logic) || !logic.fetch) {
-    logic.fetch = function (...keys: string[]): any {
-      const results: Record<string, any> = {}
-      for (const key of keys) {
-        results[key] = logic.values[key]
-      }
-      return results
-    }
   }
 }

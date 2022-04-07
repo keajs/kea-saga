@@ -32,7 +32,7 @@ test('the saga starts and stops with the component', async () => {
   const SampleComponent = () => <div>bla bla</div>
   const ConnectedComponent = withSaga(SampleComponent)
 
-  const { rerender} = render(
+  const { rerender } = render(
     <Provider store={store}>
       <ConnectedComponent id={12} />
     </Provider>,

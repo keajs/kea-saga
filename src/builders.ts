@@ -1,4 +1,4 @@
-import { afterMount, beforeUnmount, Logic, LogicBuilder } from 'kea'
+import { afterMount, beforeUnmount, getContext, Logic, LogicBuilder } from 'kea'
 import {
   call,
   take,
@@ -13,16 +13,19 @@ import { Saga } from 'redux-saga'
 let sagaIndex = 0
 
 export function saga<L extends Logic = Logic>(input: Saga): LogicBuilder<L> {
-  return (logic) => {
+  return (_logic) => {
+    const logic = _logic as Logic as LogicWithSaga
+    addGetAndFetch(logic)
     let index = sagaIndex++
-    afterMount(() => startSaga(index, input.bind(logic)))(logic)
-    beforeUnmount(() => cancelSaga(index))(logic)
+    afterMount(() => startSaga(index, input.bind(logic)))(_logic)
+    beforeUnmount(() => cancelSaga(index))(_logic)
   }
 }
 
 export function workers<L extends Logic = Logic>(input: Record<string, Saga>): LogicBuilder<L> {
-  return (_logic: Logic) => {
-    const logic = _logic as LogicWithSaga
+  return (_logic) => {
+    const logic = _logic as Logic as LogicWithSaga
+    addGetAndFetch(logic)
     logic.workers ??= {}
     for (const key of Object.keys(input)) {
       if (typeof input[key] === 'function') {
@@ -35,9 +38,11 @@ export function workers<L extends Logic = Logic>(input: Record<string, Saga>): L
 export function takeEvery<L extends Logic = Logic>(
   input: Record<string, Saga | Saga[]> | ((logic: L) => Record<string, Saga | Saga[]>),
 ): LogicBuilder<L> {
-  return (logic) => {
+  return (_logic) => {
+    const logic = _logic as Logic as LogicWithSaga
+    addGetAndFetch(logic)
     saga(function* () {
-      const actionsToTake = typeof input === 'function' ? input(logic) : input
+      const actionsToTake = typeof input === 'function' ? input(_logic) : input
       for (const key of Object.keys(actionsToTake)) {
         const actionKey = logic.actionTypes[key] ?? key
         const fn = actionsToTake[key]
@@ -49,16 +54,18 @@ export function takeEvery<L extends Logic = Logic>(
           yield sagaTakeEvery(actionKey, fn.bind(logic))
         }
       }
-    })(logic)
+    })(_logic)
   }
 }
 
 export function takeLatest<L extends Logic = Logic>(
   input: Record<string, Saga | Saga[]> | ((logic: L) => Record<string, Saga | Saga[]>),
 ): LogicBuilder<L> {
-  return (logic) => {
+  return (_logic) => {
+    const logic = _logic as Logic as LogicWithSaga
+    addGetAndFetch(logic)
     saga(function* () {
-      const actionsToTake = typeof input === 'function' ? input(logic) : input
+      const actionsToTake = typeof input === 'function' ? input(_logic) : input
       for (const key of Object.keys(actionsToTake)) {
         const actionKey = logic.actionTypes[key] ?? key
         const fn = actionsToTake[key]
@@ -70,12 +77,14 @@ export function takeLatest<L extends Logic = Logic>(
           yield sagaTakeLatest(actionKey, fn.bind(logic))
         }
       }
-    })(logic)
+    })(_logic)
   }
 }
 
 export function cancelled<L extends Logic = Logic>(input: Saga): LogicBuilder<L> {
-  return (logic) => {
+  return (_logic) => {
+    const logic = _logic as Logic as LogicWithSaga
+    addGetAndFetch(logic)
     saga(function* () {
       try {
         while (true) {
@@ -87,36 +96,21 @@ export function cancelled<L extends Logic = Logic>(input: Saga): LogicBuilder<L>
           yield call(input.bind(logic))
         }
       }
-    })(logic)
+    })(_logic)
   }
 }
 
-//
-// buildSteps: {
-//   saga(logic, input) {
-//     // add .fetch() & .get() to all logic stores if there are any selectors
-//     if (logic.selectors && Object.keys(logic.selectors).length > 0) {
-//       logic.get = function* (key) {
-//         return yield select(key ? logic.selectors[key] : logic.selector, logic.props)
-//       }
-//
-//       logic.fetch = function* () {
-//         let results = {}
-//
-//         const keys = Array.isArray(arguments[0]) ? arguments[0] : arguments
-//
-//         for (let i = 0; i < keys.length; i++) {
-//           results[keys[i]] = yield logic.get(keys[i])
-//         }
-//
-//         return results
-//       }
-//     }
-//
-//     // add .saga and .workers (if needed)
-//     if (input.start || input.stop || input.takeEvery || input.takeLatest || input.workers || logic.connectedSagas) {
-//       createSaga(logic, input, useLegacyUnboundActions)
-//     }
-//   },
-//
-// },
+function addGetAndFetch(logic: LogicWithSaga) {
+  if (!('get' in logic) || !logic.get) {
+    logic.get = (key?: string) => (key ? logic.values[key] : logic.selector?.(getContext().store.getState()))
+  }
+  if (!('fetch' in logic) || !logic.fetch) {
+    logic.fetch = function (...keys: string[]): any {
+      const results: Record<string, any> = {}
+      for (const key of keys) {
+        results[key] = logic.values[key]
+      }
+      return results
+    }
+  }
+}

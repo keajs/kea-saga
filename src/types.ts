@@ -12,8 +12,8 @@ export interface SagaContext {
 }
 
 export interface LogicWithSaga extends Logic {
-  get: undefined
-  fetch: undefined
+  get: undefined | (() => any)
+  fetch: undefined | (() => Record<string, any>)
   workers: undefined | Record<string, Saga>
   saga: undefined | Saga
 }

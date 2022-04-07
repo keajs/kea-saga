@@ -44,67 +44,6 @@ test('can run sagas in logics connected via { sagas: [] }', () => {
   expect(ranLast).toBe('base')
 })
 
-test('connect when passing the entire logic to sagas: []', () => {
-  const { store } = getContext()
-
-  let otherConnectedRan = false
-  let sagaRan = false
-  let connectedSagaRan = false
-
-  const connectedSagaLogic = kea({
-    path: () => ['scenes', 'saga', 'connected'],
-    start: function* () {
-      expect(this.path).toEqual(['scenes', 'saga', 'connected'])
-      connectedSagaRan = true
-    },
-  })
-
-  const sagaLogic2 = kea({
-    connect: {
-      sagas: [
-        function* () {
-          otherConnectedRan = true
-        },
-      ],
-    },
-    sagas: [connectedSagaLogic],
-    start: function* () {
-      sagaRan = true
-    },
-  })
-
-  const unmount = sagaLogic2.mount()
-
-  expect(sagaRan).toBe(true)
-  expect(connectedSagaRan).toBe(true)
-  expect(otherConnectedRan).toBe(true)
-
-  unmount()
-
-  // try again and now mount the component
-  otherConnectedRan = false
-  sagaRan = false
-  connectedSagaRan = false
-
-  const ConnectedComponent = sagaLogic2(() => <div />)
-  const { rerender } = render(
-    <Provider store={store}>
-      <ConnectedComponent />
-    </Provider>,
-  )
-
-  // everything should have run
-  expect(sagaRan).toBe(true)
-  expect(connectedSagaRan).toBe(true)
-  expect(otherConnectedRan).toBe(true)
-
-  rerender(
-    <Provider store={store}>
-      <div />
-    </Provider>,
-  )
-})
-
 test('sagas get connected actions', () => {
   const { store } = getContext()
 

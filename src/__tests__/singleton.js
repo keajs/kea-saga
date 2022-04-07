@@ -5,7 +5,7 @@ import { put } from 'redux-saga/effects'
 
 beforeEach(() => {
   resetContext({
-    plugins: [sagaPlugin({ useLegacyUnboundActions: false })],
+    plugins: [sagaPlugin()],
   })
 })
 
@@ -14,8 +14,6 @@ test('can have a kea with only a saga', () => {
 
   const sagaLogic = kea({
     start: function* () {
-      expect(this.get).not.toBeDefined()
-      expect(this.fetch).not.toBeDefined()
       sagaRan = true
     },
   })
@@ -80,7 +78,7 @@ test('can access values on reducer', () => {
       ],
     }),
     start: function* () {
-      const { setString } = this.actions
+      const { setString } = this.actionCreators
 
       expect(this.get).toBeDefined()
       expect(this.fetch).toBeDefined()

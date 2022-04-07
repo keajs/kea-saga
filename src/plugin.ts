@@ -56,9 +56,15 @@ export const sagaPlugin = ({
       'takeEvery' in input && input.takeEvery && takeEvery(input.takeEvery)(logic)
       'takeLatest' in input && input.takeLatest && takeLatest(input.takeLatest)(logic)
       'stop' in input && input.stop && cancelled(input.stop)(logic)
-      'start' in input && input.start && saga(input.start)(logic)
-      if ('sagas' in input && input.sagas && Array.isArray(input.sagas)) {
-        for (const s of input.sagas) {
+
+      const sagas = [
+        ...('start' in input && input.start ? [input.start] : []),
+        ...('sagas' in input && input.sagas ? input.sagas : []),
+        ...('connect' in input && input.connect?.sagas ? input.connect.sagas : []),
+      ]
+
+      if (sagas.length > 0) {
+        for (const s of sagas) {
           if ('_isKea' in s) {
             connect(s)(logic)
           } else {

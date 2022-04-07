@@ -1,7 +1,6 @@
 /* global test, expect */
 import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
-import './helper/jsdom'
 import { delay } from 'redux-saga/effects'
 
 const promiseDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))

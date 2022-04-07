@@ -1,10 +1,10 @@
 /* global test, expect, beforeEach */
 import { kea, resetContext, getContext } from 'kea'
 import { sagaPlugin } from '../index'
-import './helper/jsdom'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'
+import { render } from '@testing-library/react'
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })

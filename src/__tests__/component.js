@@ -1,7 +1,6 @@
 /* global test, expect, beforeEach */
 import { getContext, kea, resetContext } from 'kea'
 import { sagaPlugin } from '../index'
-import './helper/jsdom'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { put } from 'redux-saga/effects'

@@ -6,4 +6,5 @@ module.exports = {
     '<rootDir>/demo/',
     '<rootDir>/.yalc/',
   ],
+  testEnvironment: 'jsdom',
 }

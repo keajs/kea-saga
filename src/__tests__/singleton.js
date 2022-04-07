@@ -27,8 +27,6 @@ test('can have a kea with only a saga', () => {
 
   sagaLogic.mount()
 
-  expect(sagaLogic.saga).toBeDefined()
-
   expect(sagaRan).toBe(true)
 })
 
@@ -62,8 +60,6 @@ test('can access defined actions', () => {
   expect(sagaRan).toBe(false)
 
   sagaLogic.mount()
-
-  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
 })
@@ -107,7 +103,6 @@ test('can access values on reducer', () => {
 
   sagaLogic.mount()
 
-  expect(sagaLogic.saga).toBeDefined()
   expect(sagaLogic.workers).not.toBeDefined()
 
   expect(sagaRan).toBe(true)

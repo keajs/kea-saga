@@ -4,12 +4,13 @@ import { sagaPlugin } from '../index'
 import { put, take } from 'redux-saga/effects'
 import React from 'react'
 import { Provider } from 'react-redux'
+import { render } from '@testing-library/react'
 
 beforeEach(() => {
   resetContext({ plugins: [sagaPlugin] })
 })
 
-test('can run sagas connected via { sagas: [] }', () => {
+test('can run sagas in logics connected via { sagas: [] }', () => {
   let sagaRan = false
   let connectedSagaRan = false
   let ranLast
@@ -25,7 +26,7 @@ test('can run sagas connected via { sagas: [] }', () => {
 
   const sagaLogic = kea({
     path: () => ['scenes', 'saga', 'base'],
-    sagas: [connectedSagaLogic.build().saga],
+    sagas: [connectedSagaLogic],
     start: function* () {
       expect(this.path).toEqual(['scenes', 'saga', 'base'])
       sagaRan = true
@@ -37,8 +38,6 @@ test('can run sagas connected via { sagas: [] }', () => {
   expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'saga'])
 
   sagaLogic.mount()
-
-  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)
@@ -151,8 +150,6 @@ test('sagas get connected actions', () => {
       <ConnectedComponent />
     </Provider>,
   )
-
-  expect(sagaLogic.saga).toBeDefined()
 
   expect(sagaRan).toBe(true)
   expect(connectedSagaRan).toBe(true)

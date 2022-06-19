@@ -1,2 +1,5 @@
-export { sagaPlugin } from './plugin'
+export * from './types'
+export * from './builders'
+export * from './utils'
+export * from './plugin'
 export { keaSaga } from './channel'

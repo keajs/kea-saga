@@ -56,7 +56,7 @@ export const sagaPlugin = ({ injectGetFetchIntoEveryLogic = false }: SagaPluginO
       const sagas = [
         ...('start' in input && input.start ? [input.start] : []),
         ...('sagas' in input && input.sagas ? input.sagas : []),
-        ...('connect' in input && input.connect?.sagas ? input.connect.sagas : []),
+        ...('connect' in input && (input.connect as any)?.sagas ? (input.connect as any).sagas : []),
       ]
 
       if (sagas.length > 0) {

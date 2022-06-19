@@ -164,7 +164,7 @@ test('can get() connected values', () => {
   const otherLogicWithSaga = kea({
     connect: {
       actions: [firstLogic, ['myAction']],
-      props: [firstLogic, ['connectedValue']],
+      values: [firstLogic, ['connectedValue']],
     },
 
     path: (key) => ['scenes', 'sagaProps2'],

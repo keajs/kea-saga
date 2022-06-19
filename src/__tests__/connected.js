@@ -132,7 +132,7 @@ test('can get/fetch data from connected kea logic stores', () => {
   const sagaLogic = kea({
     connect: {
       actions: [connectedSagaLogic, ['updateValue']],
-      props: [connectedSagaLogic, ['connectedValue']],
+      values: [connectedSagaLogic, ['connectedValue']],
       sagas: [connectedSagaLogic],
     },
     path: () => ['scenes', 'saga', 'base'],

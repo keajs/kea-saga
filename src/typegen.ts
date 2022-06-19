@@ -31,8 +31,7 @@ export function workers({ parsedLogic, node }: VisitKeaPropertyArguments) {
   // go through each property
   for (const property of node.properties) {
     const key = property.name?.getText()
-    debugger
-    if (key && ts.isFunctionLike(property)) {
+    if (key && ts.isPropertyAssignment(property) && ts.isFunctionLike(property.initializer)) {
       workers.push(key)
     }
   }

@@ -11,7 +11,7 @@
     "outDir": "./lib",
     "baseUrl": "./src",
     "incremental": true,
-    "types": ["jest", "node"],
+    "types": ["jest"],
     "lib": ["dom", "ES2020"],
     "resolveJsonModule": false,
     "esModuleInterop": true,

@@ -5,8 +5,6 @@
   "author": "Marius Andra",
   "license": "MIT",
   "main": "lib/index.js",
-  "module": "es/index.js",
-  "jsnext:main": "es/index.js",
   "esnext": "src/index.js",
   "repository": {
     "type": "git",

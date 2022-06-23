@@ -1,7 +1,5 @@
-/* global test, expect, beforeEach */
-import { kea, resetContext, getContext, actions } from 'kea'
+import { kea, resetContext, path, actions } from 'kea'
 import { sagaPlugin } from '../index'
-import { put } from 'redux-saga/effects'
 import { cancelled, saga, takeEvery, takeLatest, workers } from '../builders'
 
 beforeEach(() => {
@@ -12,15 +10,20 @@ beforeEach(() => {
 
 test('saga', () => {
   let sagaRan = false
+  let sagaArgument = null
 
   const sagaLogic = kea([
-    saga(function* () {
+    path(['saga', 'logic']),
+    saga(function* (logic) {
       sagaRan = true
+      sagaArgument = logic
     }),
   ])
   expect(sagaRan).toBe(false)
   sagaLogic.mount()
   expect(sagaRan).toBe(true)
+  // gets the logic as the first argument
+  expect(sagaArgument.pathString).toEqual('saga.logic')
 })
 
 test('cancelled', () => {

@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.1.0 - 2022-06-23
+- All executed sagas via `saga(function * (logic) { doStuff() })` and similar functions now get `logic` as their first argument.
+
 ## 3.0.2 - 2022-06-23
 - Fix `package.json` import config.
 

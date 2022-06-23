@@ -18,7 +18,7 @@ export function saga<L extends Logic = Logic>(input: Saga): LogicBuilder<L> {
     const logic = _logic as Logic as LogicWithSaga
     addGetAndFetch(logic)
     let index = sagaIndex++
-    afterMount(() => startSaga(index, input.bind(logic)))(_logic)
+    afterMount(() => startSaga(index, input.bind(logic), logic))(_logic)
     beforeUnmount(() => cancelSaga(index))(_logic)
   }
 }

@@ -1,0 +1,33 @@
+schema-version = "1.11.0"
+
+[install]
+node.flake = "github:NixOS/nixpkgs/nixpkgs-unstable#nodejs_24"
+node.systems = ["aarch64-darwin", "aarch64-linux", "x86_64-linux"]
+go.flake = "github:NixOS/nixpkgs/nixpkgs-unstable#go_1_27"
+go.systems = ["aarch64-darwin", "aarch64-linux", "x86_64-linux"]
+
+# Nixpkgs 25.11 is the last release with Intel macOS binaries. Its Go launcher
+# downloads the project's pinned Go toolchain on first use.
+intel-node.flake = "github:NixOS/nixpkgs/nixos-25.11#nodejs_24"
+intel-node.systems = ["x86_64-darwin"]
+intel-go.flake = "github:NixOS/nixpkgs/nixos-25.11#go"
+intel-go.systems = ["x86_64-darwin"]
+
+[vars]
+GOTOOLCHAIN = "go1.27.3"
+
+[hook]
+on-activate = '''
+  # Install both JS CLIs against the same Node used for builds and releases.
+  npm_spec="npm@11.21.3"
+  yarn_spec="$("$FLOX_ENV/bin/node" -p "require(process.env.FLOX_ENV_PROJECT + '/package.json').packageManager.split('+')[0]")" || return 1
+  tool_prefix="$FLOX_ENV_CACHE/$npm_spec-$yarn_spec"
+  if [ ! -x "$tool_prefix/node_modules/.bin/npm" ] || [ ! -x "$tool_prefix/node_modules/.bin/yarn" ]; then
+    "$FLOX_ENV/bin/npm" install --prefix "$tool_prefix" --no-save --no-package-lock \
+      --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org "$npm_spec" "$yarn_spec" || return 1
+  fi
+  export PATH="$tool_prefix/node_modules/.bin:$PATH"
+'''
+
+[options]
+systems = ["aarch64-darwin", "aarch64-linux", "x86_64-darwin", "x86_64-linux"]

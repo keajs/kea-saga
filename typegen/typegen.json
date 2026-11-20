@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "module": "typegen.wasm",
+  "builders": [
+    "workers",
+    "saga",
+    "takeEvery",
+    "takeLatest",
+    "cancelled"
+  ],
+  "globals": [
+    "workers"
+  ]
+}

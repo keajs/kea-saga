@@ -1,0 +1,3 @@
+# github.com/keajs/kea-typegen/plugin v1.1.0
+## explicit; go 1.23
+github.com/keajs/kea-typegen/plugin

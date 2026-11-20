@@ -1,0 +1,288 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "schema-version": "1.11.0",
+    "install": {
+      "go": {
+        "flake": "github:NixOS/nixpkgs/nixpkgs-unstable#go_1_27",
+        "systems": [
+          "aarch64-darwin",
+          "aarch64-linux",
+          "x86_64-linux"
+        ]
+      },
+      "intel-go": {
+        "flake": "github:NixOS/nixpkgs/nixos-25.11#go",
+        "systems": [
+          "x86_64-darwin"
+        ]
+      },
+      "intel-node": {
+        "flake": "github:NixOS/nixpkgs/nixos-25.11#nodejs_24",
+        "systems": [
+          "x86_64-darwin"
+        ]
+      },
+      "node": {
+        "flake": "github:NixOS/nixpkgs/nixpkgs-unstable#nodejs_24",
+        "systems": [
+          "aarch64-darwin",
+          "aarch64-linux",
+          "x86_64-linux"
+        ]
+      }
+    },
+    "vars": {
+      "GOTOOLCHAIN": "go1.27.3"
+    },
+    "hook": {
+      "on-activate": "  # Install both JS CLIs against the same Node used for builds and releases.\n  npm_spec=\"npm@11.21.3\"\n  yarn_spec=\"$(\"$FLOX_ENV/bin/node\" -p \"require(process.env.FLOX_ENV_PROJECT + '/package.json').packageManager.split('+')[0]\")\" || return 1\n  tool_prefix=\"$FLOX_ENV_CACHE/$npm_spec-$yarn_spec\"\n  if [ ! -x \"$tool_prefix/node_modules/.bin/npm\" ] || [ ! -x \"$tool_prefix/node_modules/.bin/yarn\" ]; then\n    \"$FLOX_ENV/bin/npm\" install --prefix \"$tool_prefix\" --no-save --no-package-lock \\\n      --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org \"$npm_spec\" \"$yarn_spec\" || return 1\n  fi\n  export PATH=\"$tool_prefix/node_modules/.bin:$PATH\"\n"
+    },
+    "options": {
+      "systems": [
+        "aarch64-darwin",
+        "aarch64-linux",
+        "x86_64-darwin",
+        "x86_64-linux"
+      ]
+    }
+  },
+  "packages": [
+    {
+      "install_id": "go",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.aarch64-darwin.go_1_27",
+      "derivation": "/nix/store/vrm6p38yaibshgggvzlk5qx35g89fj5i-go-1.27.3.drv",
+      "outputs": {
+        "out": "/nix/store/0n6nm2j8ymbrnzb9kc5y5sar4d9vp93s-go-1.27.3"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "aarch64-darwin",
+      "system": "aarch64-darwin",
+      "name": "go-1.27.3",
+      "pname": "go",
+      "version": "1.27.3",
+      "description": "Go Programming language",
+      "licenses": [
+        "BSD-3-Clause"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "go",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.aarch64-linux.go_1_27",
+      "derivation": "/nix/store/cigqxmp5f7085rbsmqpah1iarz5inj4c-go-1.27.3.drv",
+      "outputs": {
+        "out": "/nix/store/4iwsn73m5dqlvjddjnaqgy3m34kqmicw-go-1.27.3"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "aarch64-linux",
+      "system": "aarch64-linux",
+      "name": "go-1.27.3",
+      "pname": "go",
+      "version": "1.27.3",
+      "description": "Go Programming language",
+      "licenses": [
+        "BSD-3-Clause"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "go",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.x86_64-linux.go_1_27",
+      "derivation": "/nix/store/9sgz06v8ib2vy0mg4s68yjwkf1pyvx1z-go-1.27.3.drv",
+      "outputs": {
+        "out": "/nix/store/6pavbn9myjkx0djx70hm7q4rdrv7q2iw-go-1.27.3"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "x86_64-linux",
+      "system": "x86_64-linux",
+      "name": "go-1.27.3",
+      "pname": "go",
+      "version": "1.27.3",
+      "description": "Go Programming language",
+      "licenses": [
+        "BSD-3-Clause"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "intel-go",
+      "locked-url": "github:NixOS/nixpkgs/b6018f87da91d19d0ab4cf979885689b469cdd41?narHash=sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.x86_64-darwin.go",
+      "derivation": "/nix/store/6bcla75clxq4mq283rwxkcqgmm8zlnl8-go-1.25.10.drv",
+      "outputs": {
+        "out": "/nix/store/7pcx45pql5z87qnc4z795j9p041jxb45-go-1.25.10"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "x86_64-darwin",
+      "system": "x86_64-darwin",
+      "name": "go-1.25.10",
+      "pname": "go",
+      "version": "1.25.10",
+      "description": "Go Programming language",
+      "licenses": [
+        "BSD-3-Clause"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "intel-node",
+      "locked-url": "github:NixOS/nixpkgs/b6018f87da91d19d0ab4cf979885689b469cdd41?narHash=sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.x86_64-darwin.nodejs_24",
+      "derivation": "/nix/store/v8ln0r0fk01spsql5yvdz0dbddwhl23h-nodejs-24.18.0.drv",
+      "outputs": {
+        "dev": "/nix/store/jm4045avp24vga5vx8dy4dfv9fwjm6gq-nodejs-24.18.0-dev",
+        "libv8": "/nix/store/7646iffm9njhsxz0ig378z1fjw2z9s3d-nodejs-24.18.0-libv8",
+        "out": "/nix/store/dcgckmrj921wdha4pfwjagjalyzfbmls-nodejs-24.18.0"
+      },
+      "output-names": [
+        "out",
+        "libv8",
+        "dev"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "x86_64-darwin",
+      "system": "x86_64-darwin",
+      "name": "nodejs-24.18.0",
+      "pname": "nodejs",
+      "version": "24.18.0",
+      "description": "Event-driven I/O framework for the V8 JavaScript engine",
+      "licenses": [
+        "MIT"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "node",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.aarch64-darwin.nodejs_24",
+      "derivation": "/nix/store/255rbcvs2q5vqyy7pjqsrki6scc39bkl-nodejs-24.22.2.drv",
+      "outputs": {
+        "out": "/nix/store/vxh4ylwcdwyqhils1q6084ih7l5qinwk-nodejs-24.22.2"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "aarch64-darwin",
+      "system": "aarch64-darwin",
+      "name": "nodejs-24.22.2",
+      "pname": "nodejs",
+      "version": "24.22.2",
+      "description": "Event-driven I/O framework for the V8 JavaScript engine",
+      "licenses": [
+        "MIT"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "node",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.aarch64-linux.nodejs_24",
+      "derivation": "/nix/store/l19p5v6lqdx0p188xkqayxld6b3iqgdp-nodejs-24.22.2.drv",
+      "outputs": {
+        "out": "/nix/store/pl77fywj3l09rzgsssy5drc52lpk9n0d-nodejs-24.22.2"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "aarch64-linux",
+      "system": "aarch64-linux",
+      "name": "nodejs-24.22.2",
+      "pname": "nodejs",
+      "version": "24.22.2",
+      "description": "Event-driven I/O framework for the V8 JavaScript engine",
+      "licenses": [
+        "MIT"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    },
+    {
+      "install_id": "node",
+      "locked-url": "github:NixOS/nixpkgs/19cfded70b91ca0981373973c5b1efffdd4d6647?narHash=sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw%3D",
+      "flake-description": "A collection of packages for the Nix package manager",
+      "locked-flake-attr-path": "legacyPackages.x86_64-linux.nodejs_24",
+      "derivation": "/nix/store/my4m3k693hpr9cf87fnlidwqc84z1vvj-nodejs-24.22.2.drv",
+      "outputs": {
+        "out": "/nix/store/3kfmdqn711fqcc2y1qnjssancqf7b36l-nodejs-24.22.2"
+      },
+      "output-names": [
+        "out"
+      ],
+      "outputs-to-install": [
+        "out"
+      ],
+      "requested-outputs-to-install": [],
+      "package-system": "x86_64-linux",
+      "system": "x86_64-linux",
+      "name": "nodejs-24.22.2",
+      "pname": "nodejs",
+      "version": "24.22.2",
+      "description": "Event-driven I/O framework for the V8 JavaScript engine",
+      "licenses": [
+        "MIT"
+      ],
+      "broken": false,
+      "unfree": false,
+      "priority": 5
+    }
+  ]
+}

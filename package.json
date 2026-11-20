@@ -1,6 +1,6 @@
 {
   "name": "kea-saga",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Saga support for kea",
   "author": "Marius Andra",
   "license": "MIT",
@@ -14,8 +14,11 @@
     "url": "https://github.com/keajs/kea-saga/issues"
   },
   "homepage": "https://github.com/keajs/kea-saga#readme",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "scripts": {
-    "build": "tsc -b",
+    "release:setup": "npm trust github kea-saga --repo=keajs/kea-saga --file=release.yml --allow-publish",
+    "build": "tsc -b && npm run build:typegen",
+    "build:typegen": "node typegen/build.cjs",
     "watch": "tsc -w",
     "lint": "eslint src/**",
     "prepublishOnly": "npm run test && npm run build",
